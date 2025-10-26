@@ -1,51 +1,46 @@
 from famnit_gym.envs import mill
-import math
 
 
-def minimax(model, player, maximizing, depth):
-    opponent = 3 - player
-    player_state = model._player[player]['phase']
-    opponent_state = model._player[opponent]['phase']
+inf = 10000
+
+
+def minimax(current_state, current_player, maximizing, depth):
+    opponent = 3 - current_player
+    player_state = current_state.get_phase(current_player)
+    opponent_state = current_state.get_phase(opponent)
+
+    terminal_reward = inf - depth
 
     if player_state == "lost":
-        if opponent_state == "lost":
+        if opponent_state == "lost":  # draw
             return 0
-        else:
-            return depth - math.inf
-    elif opponent_state == "lost":
-        return math.inf - depth
+        else:  # current_player loses
+            return -terminal_reward if maximizing else terminal_reward
 
-    legal_moves = model.legal_moves(player)
-    if maximizing:
-        max_value = -math.inf
-        for move in legal_moves:
-            next_model = model.clone()
-            next_model.make_move(player, move)
-
-            value = minimax(next_model, opponent, False, depth + 1)
-            max_value = max(max_value, value)
-        return max_value
-
-    else:
-        min_value = math.inf
-        for move in legal_moves:
-            next_model = model.clone()
-            next_model.make_move(player, move)
-
-            value = minimax(next_model, opponent, True, depth + 1)
-            min_value = min(min_value, value)
-        return min_value
-
-
-def ai_move(model, player):
-    best_score, best_move = -math.inf, None
-
-    legal_moves = model.legal_moves(player=player)
+    best_score = -inf if maximizing else inf
+    legal_moves = current_state.legal_moves(current_player)
     for move in legal_moves:
-        possible_model = model.clone()
-        possible_model.make_move(player, move)
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
+        score = minimax(next_state,  opponent, not maximizing, depth + 1)
 
-        score = minimax(possible_model, player,False,  1)
+        if maximizing:
+            best_score = max(best_score, score)
+        else:
+            best_score = min(best_score, score)
+
+    return best_score
+
+
+def optimal_move(current_state, current_player):
+    best_score, best_move, opponent = -inf, None, 3 - current_player
+
+    legal_moves = current_state.legal_moves(player=current_player)
+    for move in legal_moves:
+        subsequent_state = current_state.clone()
+        subsequent_state.make_move(current_player, move)
+
+        score = minimax(subsequent_state, opponent, False, 1)
         if score > best_score:
             best_score, best_move = score, move
 
@@ -62,12 +57,11 @@ for agent in env.agent_iter():
         print("The game was too long!")
         break
 
+    state = mill.transition_model(env)
     player = 1 if agent == "player_1" else 2
 
-    model = mill.transition_model(env)
-
-    move = ai_move(model, player)
-    env.step(move)
+    optimal_move = optimal_move(state, player)
+    env.step(optimal_move)
 
     # The transition model includes the following public methods:
     # * clone()
@@ -89,9 +83,9 @@ for agent in env.agent_iter():
     #
     # * make_move(player, move)
     #   Changes the state as if the given player made the given move.
-    #   Note: The correctnes of the move is not checked for performance
+    #   Note: The correctness of the move is not checked for performance
     #         reasons. The user should only make moves from the list of
-    #         of legal moves. Player's turn is also not checked. The same
+    #         legal moves. Player's turn is also not checked. The same
     #         player can be simulated as making multiple consecutive moves.
     #
     # * game_over()
