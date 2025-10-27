@@ -1,8 +1,8 @@
 from famnit_gym.envs import mill
 import hashlib
 
-inf = 10000
-depth_of_first_solution = inf
+inf = 1000
+depth_of_first_win = inf
 
 
 def get_state_hash(current_state):
@@ -28,7 +28,7 @@ def evaluate_move_quality(current_state, current_player, move):
         score += inf
 
     if test_state_info['pieces_captured'] == 1:
-        score += 100
+        score += 10
 
     current_mobility = len(current_state.legal_moves(current_player))
     opponent_mobility = len(test_state.legal_moves(opponent))
@@ -52,9 +52,9 @@ def order_moves(current_state, current_player, moves):
 
 
 def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-inf, beta=inf):
-    global depth_of_first_solution
+    global depth_of_first_win
 
-    if depth > depth_of_first_solution:
+    if depth >= depth_of_first_win:
         return 0
 
     if visited_states is None:
@@ -68,17 +68,13 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
     opponent = 3 - current_player
     player_state = current_state.get_phase(current_player)
-    opponent_state = current_state.get_phase(opponent)
 
     terminal_reward = inf - depth
 
-    if player_state == "lost":
-        if opponent_state == "lost":  # draw
-            return 0
-        else:  # current_player loses
-            if not maximizing:
-                depth_of_first_solution = min(depth_of_first_solution, depth)
-            return -terminal_reward if maximizing else terminal_reward
+    if player_state == "lost":  # current_player loses
+        if not maximizing:
+            depth_of_first_solution = min(depth_of_first_solution, depth)
+        return -terminal_reward if maximizing else terminal_reward
 
     best_score = -inf if maximizing else inf
     legal_moves = current_state.legal_moves(current_player)
@@ -104,7 +100,7 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
 
 def optimal_move(current_state, current_player):
-    global depth_of_first_solution
+    global depth_of_first_win
     depth_of_first_solution = 10000
 
     best_score, best_move, opponent = -inf, None, 3 - current_player
@@ -113,10 +109,10 @@ def optimal_move(current_state, current_player):
     ordered_moves = order_moves(current_state, current_player, legal_moves)
 
     for move in ordered_moves:  # Use ordered moves
-        subsequent_state = current_state.clone()
-        subsequent_state.make_move(current_player, move)
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
 
-        score = minimax(subsequent_state, opponent, False, 1)
+        score = minimax(next_state, opponent, False, 1)
         if score > best_score:
             best_score, best_move = score, move
 

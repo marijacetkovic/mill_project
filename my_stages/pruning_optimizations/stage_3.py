@@ -13,6 +13,7 @@ def get_state_hash(current_state):
         current_state.count_pieces(1),
         current_state.count_pieces(2),
     )
+
     return hashlib.md5(str(state_data).encode()).hexdigest()
 
 
@@ -21,25 +22,18 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
         visited_states = set()
 
     state_hash = get_state_hash(current_state)
+
     if state_hash in visited_states:
         return 0
     else:
         visited_states.add(state_hash)
 
-    opponent = 3 - current_player
-    player_state = current_state.get_phase(current_player)
-    opponent_state = current_state.get_phase(opponent)
-
-    print(current_state, current_player, player_state, opponent_state, depth)
     terminal_reward = inf - depth
 
-    if player_state == "lost":
-        if opponent_state == "lost":  # draw
-            return 0
-        else:  # current_player loses
-            return -terminal_reward if maximizing else terminal_reward
+    if current_state.game_over():  # game over
+        return -terminal_reward if maximizing else terminal_reward
 
-
+    opponent = 3 - current_player
     best_score = -inf if maximizing else inf
     legal_moves = current_state.legal_moves(current_player)
 
@@ -63,13 +57,13 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
 def optimal_move(current_state, current_player):
     best_score, best_move, opponent = -inf, None, 3 - current_player
-
     legal_moves = current_state.legal_moves(player=current_player)
-    for move in legal_moves:
-        subsequent_state = current_state.clone()
-        subsequent_state.make_move(current_player, move)
 
-        score = minimax(subsequent_state, opponent, False, 1)
+    for move in legal_moves:
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
+        score = minimax(next_state, opponent, False, 1)
+
         if score > best_score:
             best_score, best_move = score, move
 
@@ -88,6 +82,5 @@ for agent in env.agent_iter():
 
     state = mill.transition_model(env)
     player = 1 if agent == "player_1" else 2
-
     optimal_move = optimal_move(state, player)
     env.step(optimal_move)

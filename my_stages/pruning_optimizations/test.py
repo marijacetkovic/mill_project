@@ -1,8 +1,7 @@
 from famnit_gym.envs import mill
 import hashlib
 
-inf = 10000
-depth_of_first_solution = inf
+inf = 1000
 
 
 def get_state_hash(current_state):
@@ -28,7 +27,7 @@ def evaluate_move_quality(current_state, current_player, move):
         score += inf
 
     if test_state_info['pieces_captured'] == 1:
-        score += 100
+        score += 10
 
     current_mobility = len(current_state.legal_moves(current_player))
     opponent_mobility = len(test_state.legal_moves(opponent))
@@ -52,11 +51,6 @@ def order_moves(current_state, current_player, moves):
 
 
 def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-inf, beta=inf):
-    global depth_of_first_solution
-
-    if depth > depth_of_first_solution:
-        return 0
-
     if visited_states is None:
         visited_states = set()
 
@@ -68,18 +62,11 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
     opponent = 3 - current_player
     player_state = current_state.get_phase(current_player)
-    opponent_state = current_state.get_phase(opponent)
 
-    print(depth)
     terminal_reward = inf - depth
-
-    if player_state == "lost":
-        if opponent_state == "lost":  # draw
-            return 0
-        else:  # current_player loses
-            if not maximizing:
-                depth_of_first_solution = min(depth_of_first_solution, depth)
-            return -terminal_reward if maximizing else terminal_reward
+    print(depth)
+    if player_state == "lost":  # game over
+        return -terminal_reward if maximizing else terminal_reward
 
     best_score = -inf if maximizing else inf
     legal_moves = current_state.legal_moves(current_player)
@@ -105,8 +92,8 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
 
 def optimal_move(current_state, current_player):
-    global depth_of_first_solution
-    depth_of_first_solution = 10000
+    global depth_of_first_win
+    depth_of_first_win = 10000
 
     best_score, best_move, opponent = -inf, None, 3 - current_player
     legal_moves = current_state.legal_moves(player=current_player)
@@ -114,10 +101,10 @@ def optimal_move(current_state, current_player):
     ordered_moves = order_moves(current_state, current_player, legal_moves)
 
     for move in ordered_moves:  # Use ordered moves
-        subsequent_state = current_state.clone()
-        subsequent_state.make_move(current_player, move)
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
 
-        score = minimax(subsequent_state, opponent, False, 1)
+        score = minimax(next_state, opponent, False, 1)
         if score > best_score:
             best_score, best_move = score, move
 
@@ -133,14 +120,13 @@ def setup_predefined_board(env, setup_moves):
     return env
 
 
-
 setup_moves = [
     # Player 1 places, Player 2 places, etc.
     [0, 1, 0],  # Player 1 places at position 1
     [0, 4, 0],  # Player 2 places at position 4
-    [0, 7, 0],  # Player 1 places at position 2
-    [0, 2, 0],  # Player 2 places at position 5
-    [0, 5, 0],  # Player 1 forms mill at 1-2-3, needs to capture
+    [0, 7, 0],  # Player 1 places at position 7
+    [0, 2, 0],  # Player 2 places at position 2
+    [0, 5, 0],
     [0, 8, 0],
     [0, 3, 0],
     [0, 6, 0],
@@ -179,9 +165,14 @@ setup_moves = [
     [14, 13, 4],
     [19, 22, 0],
     [13, 14, 0],
-    [22, 19, 7]
-
-
+    [22, 19, 7],
+    [14, 13, 10],
+    [19, 22, 0],
+    [9, 8, 0],
+    [22, 19, 18],
+    [8, 9, 0],
+    [19, 18, 0],
+    [23, 22, 0]
     # ... continue with more moves to reach desired position
 ]
 
@@ -192,7 +183,9 @@ env = setup_predefined_board(env, setup_moves)
 observation, reward, termination, truncation, info = env.last()
 
 state = mill.transition_model(env)
-player = 1
+player = len(setup_moves) % 2 + 1
+print("player", player)
+print(state)
 print("START OF THE AI")
 optimal_move = optimal_move(state, player)
 print("AI MOVE: ", optimal_move)
