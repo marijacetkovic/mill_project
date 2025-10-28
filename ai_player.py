@@ -1,141 +1,159 @@
-import gymnasium as gym
 from famnit_gym.envs import mill
-import random
-import math
+import hashlib
 
-def get_opponent(player):
-    return (2 if player == 1 else 1)
 
-def minimax(model, player, maximizing, depth, alpha=-math.inf, beta=math.inf):
-    #global node_count
+INF = 1000
+MAX_DEPTH = 5
+
+
+def get_state_hash(current_state):
+    state_data = (
+        current_state.get_state(),
+        current_state.get_phase(1),
+        current_state.get_phase(2),
+        current_state.count_pieces(1),
+        current_state.count_pieces(2),
+    )
+
+    return hashlib.md5(str(state_data).encode()).hexdigest()
+
+def phase_to_int(phase):
+    phase_map = {
+        "placing": 1,
+        "moving": 2,
+        "flying": 3
+    }
+    return phase_map.get(phase, 0)
+
+def evaluate_state(state, player):
+    opponent = 3 - player
+    score = 0
+
+    # mill formation
+    score += count_mills(state, player) * 300
+    score -= count_mills(state, opponent) * 300  # prevent opponent mills
+
+    # potential mill formation
+    score += count_potential_mills(state, player) * 100
+    score -= count_potential_mills(state, opponent) * 100  
+
+    #piece count
+    score += (state.count_pieces(player) - state.count_pieces(opponent)) * 100
+
+    #move advantage
+    score += len(state.legal_moves(player)) * 5
+    score -= len(state.legal_moves(opponent)) * 5
+
+    return score
+
+def count_mills(state, player):
+    count = 0
+    for pos in range(1, 25):
+        if state._board[pos] == player and state._in_mill(pos):
+            count += 1
+    return count // 3
+
+
+def count_potential_mills(state, player):
+    potential_mills = 0
+
+    for mill in state.mills:
+        player_count = 0
+        empty_count = 0
+
+        for pos in mill:
+            if state._board[pos] == player:
+                player_count += 1
+            elif state._board[pos] == 0: 
+                empty_count += 1
+
+        if player_count == 2 and empty_count == 1:
+            potential_mills += 1
+
+    return potential_mills
+
+def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-INF, beta=INF):
+    if visited_states is None:
+        visited_states = set()
+
+    state_hash = get_state_hash(current_state)
+    terminal_reward = INF - depth
+
+    if state_hash in visited_states:
+        return -terminal_reward if maximizing else terminal_reward
+    else:
+        visited_states.add(state_hash)
+
+
+    if current_state.game_over():  # game over
+        return 0
+
+    if depth == MAX_DEPTH:
+        return evaluate_state(current_state, current_player)
     
-    #node_count += 1
-    legal_moves = model.legal_moves(player=player)
-    reward = 1 
-    print(depth)
-    if model.game_over():
-        #game over
-        pieces_1 = model.count_pieces(player)
-        pieces_2 = model.count_pieces(get_opponent(player))
-        reward = pieces_1 - pieces_2
-        return reward if maximizing else -reward
 
-    best_score = -math.inf if maximizing else math.inf
+    opponent = 3 - current_player
+    best_score = -INF if maximizing else INF
+    legal_moves = current_state.legal_moves(current_player)
+    if not legal_moves:
+        return -terminal_reward if maximizing else terminal_reward
     for move in legal_moves:
-        clone = model.clone()
-        move_info = clone.make_move(player,move)
-
-        # pass clone everytime?
-        score = minimax(clone, get_opponent(player), not maximizing, depth+1, alpha, beta)
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
+        score = minimax(next_state, opponent, not maximizing, depth + 1, visited_states.copy(), alpha, beta)
 
         if maximizing:
             best_score = max(best_score, score)
-            alpha = best_score if alpha is None else max(alpha, best_score)
+            alpha = max(alpha, best_score)
         else:
             best_score = min(best_score, score)
-            beta = best_score if beta is None else min(beta, best_score)
-        
+            beta = min(beta, best_score)
+
         if alpha >= beta:
             break
-    
 
     return best_score
 
-def ai_move(model, player):
-    best_score = -math.inf
-    best_move = None
 
-    for move in model.legal_moves(player=player):
-        #make first move
-        clone = model.clone()
-        move_info = clone.make_move(player,move)
-
-        #opponent is next
-        score = minimax(clone, get_opponent(player), False, 0)
+def get_optimal_move(current_state, current_player):
+    best_score, best_move, opponent = -INF, None, 3 - current_player
+    legal_moves = current_state.legal_moves(player=current_player)
+    visited = {get_state_hash(current_state)}
+    if not legal_moves:   
+        return None
+    for move in legal_moves:
+        next_state = current_state.clone()
+        next_state.make_move(current_player, move)
+        score = minimax(next_state, opponent, False, 1, visited.copy())
 
         if score > best_score:
-            best_score = score
-            best_move = move
-    
+            best_score, best_move = score, move
+
     return best_move
+
 
 env = mill.env(render_mode="human")
 env.reset()
 
-
-
 for agent in env.agent_iter():
     observation, reward, termination, truncation, info = env.last()
 
-    # The game should never terminate, but truncate after 100 moves.
+    if termination:
+        print("The game is over.")
+        print(f"Player {agent} has no legal moves.")
+        break 
+
     if truncation:
         print("The game was too long!")
         break
 
-    # Here, we want to do some computations and we need the transition model.
-    model = mill.transition_model(env)
-
-    # The transition model includes the following public methods:
-    # * clone()
-    #   Creates a deep copy of the object.
-    #
-    # * get_state()
-    #   Returns the board position as a list [0 - 23], containing values:
-    #   0 (empty), 1 (player 1), 2 (player 2).
-    #   Note: Board position 1 has index 0 in the list, etc.
-    #
-    # * get_phase(player)
-    #   Returns the phase of the given player (placing, moving, flying).
-    #
-    # * count_pieces(player)
-    #   Returns number of pieces on the board belonging to the given player.
-    #
-    # * legal_moves(player)
-    #   Returns the list of legal moves for the given player.
-    #
-    # * make_move(player, move)
-    #   Changes the state as if the given player made the given move.
-    #   Note: The correctnes of the move is not checked for performance
-    #         reasons. The user should only make moves from the list of
-    #         of legal moves. Player's turn is also not checked. The same
-    #         player can be simulated as making multiple consecutive moves.
-    #
-    # * game_over()
-    #   Return True if one of the player has lost the game.
-    #
-    # Printing the transition model prints the board state in ASCII.
-
-    # We want to know which player's turn it is.
+    state = mill.transition_model(env)
     player = 1 if agent == "player_1" else 2
+    optimal_move = get_optimal_move(state, player)
+    if optimal_move is None:
+        winner = "player_2" if agent == "player_1" else "player_1"
+        print(f"Player {agent} has no legal moves.")
+        break 
+    else:
+        env.step(optimal_move)
     
-    # And who is the opponent in this turn.
-    opponent = 2 if player == 1 else 1
-
-
-    # Try all possible moves of the current player.
-    #for move in initial_model.legal_moves(player=player):
-        # Clone the existing model, so we can backtrack.
-        #model = initial_model.clone()
-        
-        # Check how many pieces the opponent has.
-        # pieces_count = model.count_pieces(player=opponent)
-        
-        # # Make the move.
-        # model.make_move(player=player, move=move)
-        
-        # # If no change in the opponent's count, we are fine with the move.
-        # if model.count_pieces(player=opponent) == pieces_count:
-        #     considered_moves.append(move)
-    
-    
-    # We want to know which player's turn it is.
-    player = 1 if agent == "player_1" else 2
-    
-    # And who is the opponent in this turn.
-    opponent = 2 if player == 1 else 1
-
-    if player == 1:
-        move = ai_move(model,player)
-
-    # Make the move that we decided on.
-    env.step(move)
