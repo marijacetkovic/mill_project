@@ -1,9 +1,21 @@
 from famnit_gym.envs import mill
-import random
+import hashlib
 
 
-MAX_DEPTH = 6
+MAX_DEPTH = 3
 INF = 1000 + MAX_DEPTH
+
+
+def get_state_hash(current_state):
+    state_data = (
+        current_state.get_state(),
+        current_state.get_phase(1),
+        current_state.get_phase(2),
+        current_state.count_pieces(1),
+        current_state.count_pieces(2),
+    )
+
+    return hashlib.md5(str(state_data).encode()).hexdigest()
 
 
 def evaluate_state(current_state, maximizing_player):
@@ -46,7 +58,19 @@ def evaluate_positions(current_state, player, opponent):
     return score
 
 
-def minimax(current_state, current_player, maximizing_player, maximizing, depth, alpha=-INF, beta=INF):
+def minimax(current_state, current_player, maximizing_player, maximizing, depth, visited_states=None, alpha=-INF,
+            beta=INF):
+
+    if visited_states is None:
+        visited_states = set()
+
+    state_hash = get_state_hash(current_state)
+
+    if state_hash in visited_states:
+        return 0
+    else:
+        visited_states.add(state_hash)
+
     terminal_reward = INF - depth
 
     if current_state.game_over():  # game over
@@ -62,7 +86,8 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
     for move in legal_moves:
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1, alpha, beta)
+        score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1, visited_states.copy(),
+                        alpha, beta)
 
         if maximizing:
             best_score = max(best_score, score)
@@ -97,7 +122,7 @@ def optimal_move(current_state, maximizing_player):
     return best_move
 
 
-env = mill.env()
+env = mill.env('human')
 env.reset()
 
 ai_player_1 = 1

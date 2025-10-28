@@ -123,7 +123,7 @@ def optimal_move(current_state, maximizing_player):
     return best_move
 
 
-env = mill.env(render_mode="None")
+env = mill.env(render_mode="human")
 env.reset()
 
 ai_player = 1

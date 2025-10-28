@@ -18,171 +18,44 @@ def get_state_hash(current_state):
     return hashlib.md5(str(state_data).encode()).hexdigest()
 
 
-def evaluate_state(current_state, current_player):
-    opponent = 3 - current_player
+def evaluate_state(current_state, maximizing_player):
+    if maximizing_player == 1:
+        # Evaluate from Player 1's perspective
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p1_pieces - p2_pieces) * 8  # max (9 - 3) * 8 = 48
+        position_score = evaluate_positions(current_state, 1, 2)  # max (8 * 4 + 3 - 9*3 = 8)
+    else:
+        # Evaluate from Player 2's perspective
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p2_pieces - p1_pieces) * 8
+        position_score = evaluate_positions(current_state, 2, 1)
 
-    # 1. Piece count advantage (most important factor)
-    my_pieces = current_state.count_pieces(current_player)
-    opp_pieces = current_state.count_pieces(opponent)
-    piece_advantage = (my_pieces - opp_pieces) * 100
-
-    # 2. Phase advantage (being in a later phase is better)
-    my_phase = current_state.get_phase(current_player)
-    opp_phase = current_state.get_phase(opponent)
-    phase_advantage = (opp_phase - my_phase) * 50  # Negative if opponent is in later phase
-
-    # 3. Potential mills evaluation
-    my_potential_mills = count_potential_mills(current_state, current_player)
-    opp_potential_mills = count_potential_mills(current_state, opponent)
-    mill_potential = (my_potential_mills - opp_potential_mills) * 30
-
-    # 4. Mobility evaluation (number of legal moves)
-    my_mobility = len(current_state.legal_moves(current_player))
-    opp_mobility = len(current_state.legal_moves(opponent))
-    mobility_advantage = (my_mobility - opp_mobility) * 5
-
-    # 5. Piece positioning (central positions are better)
-    position_score = evaluate_positions(current_state, current_player, opponent)
-
-    # 6. Blocking opponent's potential mills
-    blocking_score = evaluate_blocking(current_state, current_player, opponent)
-
-    # 7. Game phase specific bonuses
-    phase_bonus = evaluate_phase_bonus(current_state, current_player, my_phase, opp_phase)
-
-    # Combine all components
-    score = (piece_advantage + phase_advantage + mill_potential +
-             mobility_advantage + position_score + blocking_score + phase_bonus)
-
+    score = piece_advantage + position_score
     return score
-
-
-def count_potential_mills(current_state, player):
-    potential_mills = 0
-    board_state = current_state.get_state()
-
-    # Define all possible mill lines (rows, columns, and diagonals where applicable)
-    mill_lines = [
-        # Horizontal lines
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [9, 10, 11], [12, 13, 14], [15, 16, 17],
-        [18, 19, 20], [21, 22, 23],
-        # Vertical lines
-        [0, 9, 21], [3, 10, 18], [6, 11, 15],
-        [1, 4, 7], [16, 19, 22], [8, 12, 17],
-        [5, 13, 20], [2, 14, 23]
-    ]
-
-    for line in mill_lines:
-        player_count = 0
-        empty_count = 0
-
-        for pos in line:
-            if board_state[pos] == player:
-                player_count += 1
-            elif board_state[pos] == 0:  # Empty
-                empty_count += 1
-
-        # Potential mill: 2 player pieces and 1 empty spot
-        if player_count == 2 and empty_count == 1:
-            potential_mills += 1
-
-    return potential_mills
 
 
 def evaluate_positions(current_state, player, opponent):
-    """
-    Evaluate piece positioning. Central and corner positions have different values.
-    """
     score = 0
     board_state = current_state.get_state()
 
-    # Define position values (central positions are more valuable)
     position_values = {
-        # High value - central positions that are part of multiple mills
-        4: 3, 10: 3, 13: 3, 19: 3,
-        # Medium value - other positions
-        1: 2, 7: 2, 9: 2, 11: 2, 14: 2, 18: 2, 20: 2, 22: 2,
-        # Lower value - corner positions
-        0: 1, 2: 1, 3: 1, 5: 1, 6: 1, 8: 1, 12: 1, 15: 1, 16: 1, 17: 1, 21: 1, 23: 1
+        # Middle Ring
+        4: 4, 5: 4, 6: 4, 14: 4, 21: 4, 20: 4, 19: 4, 11: 4,
+        # Outer Ring
+        1: 3, 2: 3, 3: 3, 15: 3, 24: 3, 23: 3, 22: 3, 10: 3,
+        # Inner Ring
+        7: 3, 8: 3, 9: 3, 13: 3, 18: 3, 17: 3, 16: 3, 12: 3
     }
 
     for pos, value in position_values.items():
-        if board_state[pos] == player:
+        if board_state[pos - 1] == player:
             score += value
-        elif board_state[pos] == opponent:
+        elif board_state[pos - 1] == opponent:
             score -= value
 
     return score
-
-
-def evaluate_blocking(current_state, player, opponent):
-    """
-    Evaluate how well the player is blocking opponent's potential mills.
-    """
-    blocking_score = 0
-    board_state = current_state.get_state()
-
-    # Define mill lines
-    mill_lines = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [9, 10, 11], [12, 13, 14], [15, 16, 17],
-        [18, 19, 20], [21, 22, 23],
-        [0, 9, 21], [3, 10, 18], [6, 11, 15],
-        [1, 4, 7], [16, 19, 22], [8, 12, 17],
-        [5, 13, 20], [2, 14, 23]
-    ]
-
-    for line in mill_lines:
-        opponent_count = 0
-        player_count = 0
-        empty_count = 0
-
-        for pos in line:
-            if board_state[pos] == opponent:
-                opponent_count += 1
-            elif board_state[pos] == player:
-                player_count += 1
-            else:
-                empty_count += 1
-
-        # Bonus for blocking opponent's potential mill
-        if opponent_count == 2 and player_count == 1:
-            blocking_score += 20
-        # Bonus for having a piece in opponent's potential mill line
-        elif opponent_count == 1 and player_count == 1:
-            blocking_score += 5
-
-    return blocking_score
-
-
-def evaluate_phase_bonus(current_state, player, my_phase, opp_phase):
-    """
-    Provide bonuses based on game phase.
-    """
-    bonus = 0
-
-    # Phase 1: Placing pieces
-    if my_phase == 1:
-        # Bonus for having more pieces to place
-        pieces_to_place = 9 - current_state.count_pieces(player)
-        bonus += pieces_to_place * 2
-
-    # Phase 3: Flying (big advantage)
-    if my_phase == 3:
-        bonus += 100  # Flying is a significant advantage
-    elif opp_phase == 3:
-        bonus -= 100  # Opponent flying is bad for us
-
-    # Phase 2: Moving pieces - check if we're constrained
-    if my_phase == 2:
-        mobility = len(current_state.legal_moves(player))
-        if mobility <= 2:  # Very constrained
-            bonus -= 50
-        elif mobility <= 4:  # Somewhat constrained
-            bonus -= 20
-
-    return bonus
 
 
 def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-INF, beta=INF):
