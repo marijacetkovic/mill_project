@@ -4,11 +4,14 @@ import random
 
 ### Let's play in a way to never capture any pieces. ###
 
-env = mill.env(render_mode="human")
+env = mill.env(render_mode="none")
 env.reset()
+
+num_moves = 0
 
 for agent in env.agent_iter():
     observation, reward, termination, truncation, info = env.last()
+
 
     # The game should never terminate, but truncate after 100 moves.
     if truncation:
@@ -77,3 +80,6 @@ for agent in env.agent_iter():
 
     # Make the move that we decided on.
     env.step(move)
+    num_moves += 1
+    print(player)
+    print(num_moves)
