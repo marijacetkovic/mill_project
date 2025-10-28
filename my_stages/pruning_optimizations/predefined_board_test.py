@@ -74,7 +74,6 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
 
 
 def optimal_move(current_state, maximizing_player):
-    """Find the optimal move using minimax with hashing."""
     best_score, best_move = -INF, None
     legal_moves = current_state.legal_moves(player=maximizing_player)
 

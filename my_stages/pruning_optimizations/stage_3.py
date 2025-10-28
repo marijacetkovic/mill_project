@@ -2,7 +2,7 @@ from famnit_gym.envs import mill
 import hashlib
 
 
-inf = 1000
+INF = 201
 
 
 def get_state_hash(current_state):
@@ -17,24 +17,27 @@ def get_state_hash(current_state):
     return hashlib.md5(str(state_data).encode()).hexdigest()
 
 
-def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-inf, beta=inf):
+def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-INF, beta=INF):
+    terminal_reward = INF - depth
+
+    if depth == 200:  # draw
+        return 0
+
+    if current_state.game_over():  # game over
+        return -terminal_reward if maximizing else terminal_reward
+
     if visited_states is None:
         visited_states = set()
 
     state_hash = get_state_hash(current_state)
 
-    if state_hash in visited_states:
+    if state_hash in visited_states:  # loop
         return 0
     else:
         visited_states.add(state_hash)
 
-    terminal_reward = inf - depth
-
-    if current_state.game_over():  # game over
-        return -terminal_reward if maximizing else terminal_reward
-
     opponent = 3 - current_player
-    best_score = -inf if maximizing else inf
+    best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
 
     for move in legal_moves:
@@ -56,7 +59,7 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
 
 
 def optimal_move(current_state, current_player):
-    best_score, best_move, opponent = -inf, None, 3 - current_player
+    best_score, best_move, opponent = -INF, None, 3 - current_player
     legal_moves = current_state.legal_moves(player=current_player)
 
     for move in legal_moves:

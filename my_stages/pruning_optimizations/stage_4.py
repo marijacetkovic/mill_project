@@ -2,8 +2,8 @@ from famnit_gym.envs import mill
 import hashlib
 
 
-INF = 1000
-MAX_DEPTH = 995
+MAX_DEPTH = 3
+INF = 1000 + MAX_DEPTH
 
 
 def get_state_hash(current_state):
@@ -58,24 +58,25 @@ def evaluate_positions(current_state, player, opponent):
     return score
 
 
-def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-INF, beta=INF):
+def minimax(current_state, current_player, maximizing_player, maximizing, depth, visited_states=None, alpha=-INF,
+            beta=INF):
+    terminal_reward = INF - depth
+
+    if depth == MAX_DEPTH:  # draw
+        return 0
+
+    if current_state.game_over():  # game over
+        return -terminal_reward if maximizing else terminal_reward
+
     if visited_states is None:
         visited_states = set()
 
     state_hash = get_state_hash(current_state)
 
-    if state_hash in visited_states:
+    if state_hash in visited_states:  # loop
         return 0
     else:
         visited_states.add(state_hash)
-
-    terminal_reward = INF - depth
-
-    if current_state.game_over():  # game over
-        return -terminal_reward if maximizing else terminal_reward
-
-    if depth == MAX_DEPTH:
-        return evaluate_state(current_state, current_player)
 
     opponent = 3 - current_player
     best_score = -INF if maximizing else INF
@@ -84,7 +85,8 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
     for move in legal_moves:
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, not maximizing, depth + 1, visited_states.copy(), alpha, beta)
+        score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1, visited_states.copy(),
+                        alpha, beta)
 
         if maximizing:
             best_score = max(best_score, score)
@@ -93,20 +95,25 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
             best_score = min(best_score, score)
             beta = min(beta, best_score)
 
-        if alpha >= beta:
+        if beta <= alpha:
             break
 
     return best_score
 
 
-def optimal_move(current_state, current_player):
-    best_score, best_move, opponent = -INF, None, 3 - current_player
-    legal_moves = current_state.legal_moves(player=current_player)
+def optimal_move(current_state, maximizing_player):
+    best_score, best_move = -INF, None
+    legal_moves = current_state.legal_moves(player=maximizing_player)
 
     for move in legal_moves:
         next_state = current_state.clone()
-        next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, False, 1)
+        next_state.make_move(maximizing_player, move)
+        # The opponent becomes the minimizing player, but perspective stays with current_player
+        score = minimax(next_state,
+                        current_player=3 - maximizing_player,
+                        maximizing_player=maximizing_player,
+                        maximizing=False,
+                        depth=1)
 
         if score > best_score:
             best_score, best_move = score, move

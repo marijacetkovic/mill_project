@@ -1,23 +1,26 @@
 from famnit_gym.envs import mill
 
 
-inf = 10000
+INF = 201
 
 
-def minimax(current_state, current_player, maximizing, depth):
-    terminal_reward = inf - depth
+def minimax(current_state, current_player, maximizing_player, maximizing, depth):
+    terminal_reward = INF - depth
+
+    if depth == 200:  # draw
+        return 0
 
     if current_state.game_over():  # game over
         return -terminal_reward if maximizing else terminal_reward
 
     opponent = 3 - current_player
-    best_score = -inf if maximizing else inf
+    best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
 
     for move in legal_moves:
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, not maximizing, depth + 1)
+        score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1)
 
         if maximizing:
             best_score = max(best_score, score)
@@ -27,14 +30,19 @@ def minimax(current_state, current_player, maximizing, depth):
     return best_score
 
 
-def optimal_move(current_state, current_player):
-    best_score, best_move, opponent = -inf, None, 3 - current_player
-    legal_moves = current_state.legal_moves(player=current_player)
+def optimal_move(current_state, maximizing_player):
+    best_score, best_move = -INF, None
+    legal_moves = current_state.legal_moves(player=maximizing_player)
 
     for move in legal_moves:
         next_state = current_state.clone()
-        next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, False, 1)
+        next_state.make_move(maximizing_player, move)
+        # The opponent becomes the minimizing player, but perspective stays with current_player
+        score = minimax(next_state,
+                        current_player=3 - maximizing_player,
+                        maximizing_player=maximizing_player,
+                        maximizing=False,
+                        depth=1)
 
         if score > best_score:
             best_score, best_move = score, move
