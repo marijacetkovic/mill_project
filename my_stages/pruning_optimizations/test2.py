@@ -1,8 +1,10 @@
 from famnit_gym.envs import mill
 import hashlib
+import random
 
-inf = 1000
-depth_of_first_win = inf
+
+MAX_DEPTH = 4
+INF = 1000 + MAX_DEPTH
 
 
 def get_state_hash(current_state):
@@ -13,78 +15,80 @@ def get_state_hash(current_state):
         current_state.count_pieces(1),
         current_state.count_pieces(2),
     )
+
     return hashlib.md5(str(state_data).encode()).hexdigest()
 
 
-def evaluate_move_quality(current_state, current_player, move):
+def evaluate_state(current_state, maximizing_player):
+    if maximizing_player == 1:
+        # Evaluate from Player 1's perspective
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p1_pieces - p2_pieces) * 8  # max 9 - 3 * 8 = 48
+        position_score = evaluate_positions(current_state, 1, 2)
+    else:
+        # Evaluate from Player 2's perspective
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p2_pieces - p1_pieces) * 8
+        position_score = evaluate_positions(current_state, 2, 1)
+
+    score = piece_advantage + position_score
+    return score
+
+
+def evaluate_positions(current_state, player, opponent):
     score = 0
+    board_state = current_state.get_state()
 
-    test_state = current_state.clone()
-    test_state_info = test_state.make_move(current_player, move)
+    position_values = {
+        # Middle Ring
+        4: 4, 5: 4, 6: 4, 14: 4, 21: 4, 20: 4, 19: 4, 11: 4,
+        # Outer Ring
+        1: 3, 2: 3, 3: 3, 15: 3, 24: 3, 23: 3, 22: 3, 10: 3,
+        # Inner Ring
+        7: 3, 8: 3, 9: 3, 13: 3, 18: 3, 17: 3, 16: 3, 12: 3
+    }
 
-    opponent = 3 - current_player
-
-    if test_state_info['opponent_phase'] == 'lost':
-        score += inf
-
-    if test_state_info['pieces_captured'] == 1:
-        score += 10
-
-    current_mobility = len(current_state.legal_moves(current_player))
-    opponent_mobility = len(test_state.legal_moves(opponent))
-    new_mobility = len(test_state.legal_moves(current_player))
-    if new_mobility > current_mobility:
-        score += 1
-    if opponent_mobility < current_mobility:
-        score += 1
+    for pos, value in position_values.items():
+        if board_state[pos - 1] == player:
+            score += value
+        elif board_state[pos - 1] == opponent:
+            score -= value
 
     return score
 
 
-def order_moves(current_state, current_player, moves):
-    scored_moves = []
-    for move in moves:
-        score = evaluate_move_quality(current_state, current_player, move)
-        scored_moves.append((score, move))
-
-    scored_moves.sort(key=lambda x: x[0], reverse=True)
-    return [move for score, move in scored_moves]
-
-
-def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-inf, beta=inf):
-    global depth_of_first_win
-
-    if depth >= depth_of_first_win:
-        return 0
+def minimax(current_state, current_player, maximizing_player, maximizing, depth, visited_states=None, alpha=-INF,
+            beta=INF):
 
     if visited_states is None:
         visited_states = set()
 
     state_hash = get_state_hash(current_state)
+
     if state_hash in visited_states:
         return 0
     else:
         visited_states.add(state_hash)
 
-    opponent = 3 - current_player
-    player_state = current_state.get_phase(current_player)
+    terminal_reward = INF - depth
 
-    terminal_reward = inf - depth
-
-    if player_state == "lost":  # current_player loses
-        if not maximizing:
-            depth_of_first_solution = min(depth_of_first_solution, depth)
+    if current_state.game_over():  # game over
         return -terminal_reward if maximizing else terminal_reward
 
-    best_score = -inf if maximizing else inf
+    if depth == MAX_DEPTH:
+        return evaluate_state(current_state, maximizing_player)
+
+    opponent = 3 - current_player
+    best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
 
-    ordered_moves = order_moves(current_state, current_player, legal_moves)
-
-    for move in ordered_moves:
+    for move in legal_moves:
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
-        score = minimax(next_state, opponent, not maximizing, depth + 1, visited_states.copy(), alpha, beta)
+        score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1, visited_states.copy(),
+                        alpha, beta)
 
         if maximizing:
             best_score = max(best_score, score)
@@ -93,36 +97,42 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
             best_score = min(best_score, score)
             beta = min(beta, best_score)
 
-        if alpha >= beta:
+        if beta <= alpha:
             break
 
     return best_score
 
 
-def optimal_move(current_state, current_player):
-    global depth_of_first_win
-    depth_of_first_solution = 10000
+def optimal_move(current_state, maximizing_player):
+    best_score, best_move = -INF, None
+    legal_moves = current_state.legal_moves(player=maximizing_player)
 
-    best_score, best_move, opponent = -inf, None, 3 - current_player
-    legal_moves = current_state.legal_moves(player=current_player)
-
-    ordered_moves = order_moves(current_state, current_player, legal_moves)
-
-    for move in ordered_moves:  # Use ordered moves
+    for move in legal_moves:
         next_state = current_state.clone()
-        next_state.make_move(current_player, move)
+        next_state.make_move(maximizing_player, move)
+        # The opponent becomes the minimizing player, but perspective stays with current_player
+        score = minimax(next_state,
+                        current_player=3 - maximizing_player,
+                        maximizing_player=maximizing_player,
+                        maximizing=False,
+                        depth=1)
 
-        score = minimax(next_state, opponent, False, 1)
         if score > best_score:
             best_score, best_move = score, move
 
     return best_move
 
 
-env = mill.env(render_mode="human")
+env = mill.env(render_mode="None")
 env.reset()
 
+ai_player = 1
+random_player = 3 - ai_player
+ai_moves = 0
+
 for agent in env.agent_iter():
+    current_player = 1 if agent == "player_1" else 2
+    print(agent)
     observation, reward, termination, truncation, info = env.last()
 
     if truncation:
@@ -130,7 +140,21 @@ for agent in env.agent_iter():
         break
 
     state = mill.transition_model(env)
-    player = 1 if agent == "player_1" else 2
 
-    optimal_move = optimal_move(state, player)
-    env.step(optimal_move)
+    if state.game_over():
+        print("Game over!")
+        if state.get_phase(ai_player) == 'lost':
+            print("AI lost")
+        else:
+            print("AI won, moves needed", ai_moves)
+        break
+
+    if current_player == ai_player:
+        move = optimal_move(state, ai_player)
+        print("ai_move", move)
+        ai_moves += 1
+    else:
+        move = random.choice(state.legal_moves(player=random_player))
+        print("random_move", move)
+
+    env.step(move)

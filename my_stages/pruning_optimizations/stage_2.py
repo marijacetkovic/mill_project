@@ -1,7 +1,7 @@
 from famnit_gym.envs import mill
 
 
-inf = 10000
+inf = 1000
 
 
 def minimax(current_state, current_player, maximizing, depth, alpha=-inf, beta=inf):

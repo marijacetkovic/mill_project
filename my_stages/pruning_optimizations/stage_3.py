@@ -2,7 +2,7 @@ from famnit_gym.envs import mill
 import hashlib
 
 
-inf = 10000
+inf = 1000
 
 
 def get_state_hash(current_state):
