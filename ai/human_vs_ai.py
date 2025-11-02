@@ -9,8 +9,8 @@ def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
     env = UserInteraction(env)
     env.reset()
 
-    ai_player_id = 3 - human_player
-    ai = AIPlayer(ai_player_id, difficulty=ai_difficulty)
+    ai_player = 3 - human_player
+    ai = AIPlayer(ai_player, difficulty=ai_difficulty)
 
 
     for agent in env.agent_iter():
@@ -62,6 +62,7 @@ def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
                 
                 elif event["type"] == "mouse_click":
                     pos = event["position"]
+                    
                     #placing phase needs only dst
                     if phase == "placing":
                         #if available pos
@@ -72,6 +73,7 @@ def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
                                     move = [src, dst, capture]
                                     done_interacting = True
                                     break
+                    
                     #need src and dst
                     elif phase in ("moving", "flying"):
                         if src_selected is None:
@@ -101,20 +103,51 @@ def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
                         done_interacting = True
                         truncation = True
 
-            env.clear_markings()
-
             if truncation:
                 print("User quit interactively!")
                 break
-            #need to handle captures!!!!
             
+            #if a move is chosen and capturing possible
+            if move is not None and move[2] != 0:
+                print("Mill possible! Select piece to capture!")
+                env.clear_markings()
+
+                #mark all possible captures with chosen src and dst
+                for [src, dst, cap] in info["legal_moves"]:
+                    if src == move[0] and dst == move[1] and cap != 0:
+                        env.mark_position(cap, (255, 64, 64, 128))
+
+                capture_done = False
+                while not capture_done:
+                    event = env.interact()
+                    if event["type"] == "quit":
+                        truncation = True
+                        capture_done = True
+                        break
+                    #wait for click
+                    elif event["type"] == "mouse_click":
+                        pos = event["position"]
+
+                        #if belongs to other player
+                        if observation[pos - 1] == ai_player:
+
+                            #find the chosen capture position in legal moves
+                            for [src, dst, cap] in info["legal_moves"]:
+                                if src == move[0] and dst == move[1] and cap == pos:
+                                    #record
+                                    move[2] = cap
+                                    capture_done = True
+                                    break
+
+                env.clear_markings()
+
             # Make the chosen move.
             env.step(move)
         else:
             state = mill.transition_model(env.unwrapped)
             move = ai.choose_move(state)
             if move is None:
-                print(f"AI player {ai_player_id} has no legal moves. Human wins!")
+                print(f"AI player {ai_player} has no legal moves. Human wins!")
                 break
             env.step(move)
 
