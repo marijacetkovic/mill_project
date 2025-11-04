@@ -1,5 +1,4 @@
 INF = 1000
-MAX_DEPTH = 5
 
 
 def evaluate_state(current_state, maximizing_player):
@@ -15,6 +14,7 @@ def evaluate_state(current_state, maximizing_player):
         position_score = evaluate_positions(current_state, 2, 1)
 
     score = piece_advantage + position_score
+
     return score
 
 def evaluate_positions(current_state, player, opponent):

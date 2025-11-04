@@ -3,11 +3,11 @@ from famnit_gym.envs import mill
 
 
 def main():
-    env = mill.env(render_mode="human")
+    env = mill.env(render_mode="ansi")
     env.reset()
 
-    player1_ai = AIPlayer(player_id=1, difficulty="easy")
-    player2_ai = AIPlayer(player_id=2, difficulty="easy")
+    player1_ai = AIPlayer(player_id=1, difficulty="medium")
+    player2_ai = AIPlayer(player_id=2, difficulty="hard")
 
     for agent in env.agent_iter():
         obs, reward, termination, truncation, info = env.last()

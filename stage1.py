@@ -6,23 +6,29 @@ import sys
 
 log_file = open("game_log.txt", "w")
 sys.stdout = log_file
+MAX_DEPTH = 3
+node_count = 0
 
 def get_opponent(player):
     return (2 if player == 1 else 1)
 
 def minimax(model, player, maximizing, depth, alpha=-math.inf, beta=math.inf):
-    #global node_count
+    global node_count
     
-    #node_count += 1
+    node_count += 1
     legal_moves = model.legal_moves(player=player)
     reward = 1 
-    print(depth)
-    if model.game_over() or depth>3:
-        #game over
+    #print(depth)
+    if model.game_over():
+        if maximizing: 
+            return -math.inf  
+        else: 
+            return math.inf   
+
+    if depth >= MAX_DEPTH:
         pieces_1 = model.count_pieces(player)
         pieces_2 = model.count_pieces(get_opponent(player))
-        reward = pieces_1 - pieces_2
-        return reward if maximizing else -reward
+        return pieces_1 - pieces_2
 
     best_score = -math.inf if maximizing else math.inf
     for move in legal_moves:
@@ -49,7 +55,7 @@ def ai_move(model, player):
     best_score = -math.inf
     best_move = None
     legal_moves = model.legal_moves(player=player)
-    
+    global node_count
     
     for move in model.legal_moves(player=player):
         #make first move
@@ -58,20 +64,28 @@ def ai_move(model, player):
 
         #opponent is next
         score = minimax(clone, get_opponent(player), False, 0)
-
+        
+        #print nr expanded nodes for the minimax run
+        #print(node_count)
+        node_count = 0
         if score > best_score:
             best_score = score
             best_move = move
     print(best_move)
     return best_move
 
-env = mill.env(render_mode="human")
+env = mill.env(render_mode="ansi")
 env.reset()
 
 
 
 for agent in env.agent_iter():
     observation, reward, termination, truncation, info = env.last()
+    
+    #termination
+    if termination:
+        print(f"Game over! Agent {agent} terminated.")
+        break
 
     # The game should never terminate, but truncate after 100 moves.
     if truncation:
@@ -125,8 +139,8 @@ for agent in env.agent_iter():
     # And who is the opponent in this turn.
     opponent = 2 if player == 1 else 1
 
-    if player == 1:
-        move = ai_move(model,player)
+    
+    move = ai_move(model,player)
 
     # Make the move that we decided on.
     env.step(move)

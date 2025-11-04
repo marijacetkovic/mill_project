@@ -1,5 +1,5 @@
-from evaluations import INF, MAX_DEPTH, evaluate_state
-from utility import get_state_hash
+from .evaluations import INF, evaluate_state
+from .utility import get_state_hash
 
 
 def minimax(current_state, current_player, maximizing_player, maximizing, depth, max_depth, visited_states=None,
@@ -20,6 +20,7 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
     # Depth limit reached
     if depth >= max_depth:
         return evaluate_state(current_state, maximizing_player)
+    
 
     opponent = 3 - current_player
     best_score = -INF if maximizing else INF
