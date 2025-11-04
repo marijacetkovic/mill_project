@@ -1,51 +1,36 @@
-
 INF = 1000
 MAX_DEPTH = 5
 
 
-def evaluate_state(state, player):
-    opponent = 3 - player
-    score = 0
+def evaluate_state(current_state, maximizing_player):
+    if maximizing_player == 1:
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p1_pieces - p2_pieces) * 8
+        position_score = evaluate_positions(current_state, 1, 2)
+    else:
+        p1_pieces = current_state.count_pieces(1)
+        p2_pieces = current_state.count_pieces(2)
+        piece_advantage = (p2_pieces - p1_pieces) * 8
+        position_score = evaluate_positions(current_state, 2, 1)
 
-    # mill formation
-    score += count_mills(state, player) * 300
-    score -= count_mills(state, opponent) * 300  # prevent opponent mills
-
-    # potential mill formation
-    score += count_potential_mills(state, player) * 100
-    score -= count_potential_mills(state, opponent) * 100  
-
-    #piece count
-    score += (state.count_pieces(player) - state.count_pieces(opponent)) * 100
-
-    #move advantage
-    score += len(state.legal_moves(player)) * 5
-    score -= len(state.legal_moves(opponent)) * 5
-
+    score = piece_advantage + position_score
     return score
 
-def count_mills(state, player):
-    count = 0
-    for pos in range(1, 25):
-        if state._board[pos] == player and state._in_mill(pos):
-            count += 1
-    return count // 3
+def evaluate_positions(current_state, player, opponent):
+    score = 0
+    board_state = current_state.get_state()
 
+    position_values = {
+        4: 4, 5: 4, 6: 4, 14: 4, 21: 4, 20: 4, 19: 4, 11: 4,
+        1: 3, 2: 3, 3: 3, 15: 3, 24: 3, 23: 3, 22: 3, 10: 3,
+        7: 3, 8: 3, 9: 3, 13: 3, 18: 3, 17: 3, 16: 3, 12: 3
+    }
 
-def count_potential_mills(state, player):
-    potential_mills = 0
+    for pos, value in position_values.items():
+        if board_state[pos - 1] == player:
+            score += value
+        elif board_state[pos - 1] == opponent:
+            score -= value
 
-    for mill in state.mills:
-        player_count = 0
-        empty_count = 0
-
-        for pos in mill:
-            if state._board[pos] == player:
-                player_count += 1
-            elif state._board[pos] == 0: 
-                empty_count += 1
-
-        if player_count == 2 and empty_count == 1:
-            potential_mills += 1
-
-    return potential_mills
+    return score

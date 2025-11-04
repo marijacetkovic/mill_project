@@ -1,6 +1,4 @@
-
 import hashlib
-
 
 def get_state_hash(current_state):
     state_data = (
@@ -10,7 +8,6 @@ def get_state_hash(current_state):
         current_state.count_pieces(1),
         current_state.count_pieces(2),
     )
-
     return hashlib.md5(str(state_data).encode()).hexdigest()
 
 def phase_to_int(phase):
