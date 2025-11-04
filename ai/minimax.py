@@ -1,9 +1,9 @@
 
-from ai.evaluations import INF, MAX_DEPTH, evaluate_state
-from ai.utility import get_state_hash
+from evaluations import INF, MAX_DEPTH, evaluate_state
+from utility import get_state_hash
 
 
-def minimax(current_state, current_player, maximizing, depth, visited_states=None, alpha=-INF, beta=INF):
+def minimax(current_state, current_player, maximizing, depth, visited_states=None, max_depth = MAX_DEPTH, alpha=-INF, beta=INF):
     if visited_states is None:
         visited_states = set()
 
@@ -19,7 +19,7 @@ def minimax(current_state, current_player, maximizing, depth, visited_states=Non
     if current_state.game_over():  # game over
         return 0
 
-    if depth == MAX_DEPTH:
+    if depth == max_depth:
         return evaluate_state(current_state, current_player)
     
 
