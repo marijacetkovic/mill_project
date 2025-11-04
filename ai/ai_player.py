@@ -1,6 +1,6 @@
-from evaluations import INF
-from minimax import minimax
-from utility import get_state_hash
+from .evaluations import INF
+from .minimax import minimax
+from .utility import get_state_hash
 import random
 
 
@@ -11,7 +11,7 @@ class AIPlayer:
         self.depth_settings = {
             "easy": 2,
             "medium": 3,
-            "hard": 5
+            "hard": 4
         }
         self.rnd_settings = {
             "easy": 0.3,
