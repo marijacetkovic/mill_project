@@ -1,8 +1,8 @@
 from famnit_gym.envs import mill
-from complete_minimax_implementations import basic
-from complete_minimax_implementations import alpha_beta
-from complete_minimax_implementations import alpha_beta_move_ordering
-from complete_minimax_implementations import alpha_beta_move_ordering_hashing
+from minimax_implementations import basic
+from minimax_implementations import alpha_beta
+from minimax_implementations import alpha_beta_move_ordering
+from minimax_implementations import alpha_beta_move_ordering_hashing
 import time
 
 

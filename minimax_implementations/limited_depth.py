@@ -1,9 +1,10 @@
-from famnit_gym.envs import mill
-import time
-
-
 INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWED
-MOVES_COUNTER = 0  # GLOBAL MOVE COUNTER - NUMBER OF MOVES ALREADY DONE
+
+
+# COMPUTE HASH OF THE STATE
+def get_state_hash(current_state):
+    state_data = current_state.get_state()
+    return str(state_data)  # RETURN STRING REPRESENTATION OF THE STATE OF THE BOARD
 
 
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE
@@ -63,14 +64,30 @@ def order_moves(current_state, current_player, maximizing_player, unordered_move
     return [move for move, score in move_scores]
 
 
-# RECURSIVE MINIMAX ALGORITHM WITH ALPHA-BETA PRUNING
+# RECURSIVE MINIMAX ALGORITHM WITH ALPHA-BETA PRUNING + MOVE ORDERING
 def minimax(current_state,
             current_player, maximizing_player,
-            state_depth, alpha=-INF, beta=INF):
-    global MOVES_COUNTER
+            state_depth, max_depth,
+            moves_counter,
+            alpha=-INF, beta=INF,
+            visited_states=None):
+
+    # INITIALIZE SET OF VISITED STATES IF EMPTY
+    if visited_states is None:
+        visited_states = set()
+
+    # COMPUTE HASH
+    state_hash = get_state_hash(current_state)
+
+    # IF VISITED, CONSIDER AS A DRAW
+    if state_hash in visited_states:
+        return 0
+
+    # IF NOT VISITED, ADD TO THE SET OF VISITED
+    visited_states.add(state_hash)
 
     # DRAW CONDITION - MAXIMUM GAME LENGTH REACHED
-    if state_depth == 200 - MOVES_COUNTER:
+    if state_depth == 200 - moves_counter:
         return 0
 
     # DETERMINE IF CURRENT PLAYER IS MAXIMIZING OR MINIMIZING
@@ -80,6 +97,10 @@ def minimax(current_state,
     # CHECK FOR GAME OVER CONDITION
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
+
+    # CHECK FOR STATES AT MAXIMAL DEPTH
+    if state_depth == max_depth:
+        return evaluate_state(current_state, maximizing_player)
 
     # GET AND ORDER LEGAL MOVES FOR BETTER PRUNING EFFICIENCY
     legal_moves = current_state.legal_moves(current_player)
@@ -103,8 +124,11 @@ def minimax(current_state,
             current_player=3 - current_player,  # SWITCH PLAYER
             maximizing_player=maximizing_player,
             state_depth=state_depth + 1,
+            max_depth=max_depth,
+            moves_counter=moves_counter,
             alpha=alpha,
             beta=beta,
+            visited_states=visited_states.copy()  # PASS A COPY OF VISITED TO THE BRANCH
         )
 
         # UPDATE BEST SCORE AND ALPHA/BETA VALUES
@@ -123,9 +147,7 @@ def minimax(current_state,
 
 
 # TOP-LEVEL MINIMAX FUNCTION THAT RETURNS THE OPTIMAL MOVE TO MAKE
-def find_optimal_move(current_state, maximizing_player):
-    global MOVES_COUNTER
-
+def find_optimal_move(current_state, maximizing_player, max_depth, moves_counter):
     best_score, optimal_move = -INF, None
 
     # GET AND ORDER LEGAL MOVES FOR THE CURRENT PLAYER
@@ -146,245 +168,16 @@ def find_optimal_move(current_state, maximizing_player):
             current_state=next_state,
             current_player=3 - maximizing_player,  # SWITCH TO OPPONENT
             maximizing_player=maximizing_player,
-            state_depth=1,  # START DEPTH COUNTER
+            state_depth=1,
+            max_depth=max_depth,
+            moves_counter=moves_counter,
             alpha=best_score,  # USE CURRENT BEST AS ALPHA FOR PRUNING
             beta=INF,
+            visited_states=None
         )
 
         # UPDATE BEST MOVE IF A BETTER SCORE IS FOUND
         if score > best_score:
             best_score, optimal_move = score, move
 
-    MOVES_COUNTER += 1
     return optimal_move
-
-
-
-def setup_predefined_board(env, setup_moves):
-    env.reset()
-    for move in setup_moves:
-        env.step(move)
-    return env
-
-
-setup_moves = [
-    [0, 1, 0],
-    [0, 4, 0],
-    [0, 7, 0],
-    [0, 2, 0],
-    [0, 5, 0],
-    [0, 8, 0],
-    [0, 3, 0],
-    [0, 6, 0],
-    [0, 9, 0],
-    [0, 22, 0],
-    [0, 19, 0],
-    [0, 16, 0],
-    [0, 23, 0],
-    [0, 20, 0],
-    [0, 17, 0],
-    [0, 24, 0],
-    [0, 21, 0],
-    [0, 18, 0],
-    [21, 14, 0],
-    [22, 10, 0],
-    [14, 13, 0],
-    [10, 11, 0],
-    [19, 22, 0],
-    [18, 21, 0],
-    [17, 18, 24],
-    [16, 19, 1],
-    [13, 14, 0],
-    [11, 10, 0],
-    [14, 13, 2],
-    [10, 11, 3],
-    [13, 14, 0],
-    [11, 10, 0],
-    [14, 13, 6],
-    [10, 11, 22],
-    [13, 14, 0],
-    [11, 10, 0],
-    [14, 13, 8],
-    [10, 11, 5],
-    [13, 14, 0],
-    [11, 10, 0],
-    [14, 13, 4],
-    [19, 22, 0],
-    [13, 14, 0],
-    [22, 19, 7],
-    [14, 13, 10],
-    [19, 22, 0],
-    [9, 8, 0],
-    [22, 19, 8],
-    [23, 24, 0],
-    [19, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-    [24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-    [1, 22, 0],
-[24, 23, 0],
-    [22, 1, 0],
-    [23, 24, 0],
-[1, 22, 0],
-[24, 23, 0],
-[22, 1, 0],
-    [23, 24, 0],
-
-]
-
-
-MOVES_COUNTER = len(setup_moves)
-print(MOVES_COUNTER)
-
-env = mill.env()  # Fixed typo: "asci" -> "ascii"
-env = setup_predefined_board(env, setup_moves)
-
-observation, reward, termination, truncation, info = env.last()
-
-state = mill.transition_model(env)
-player = len(setup_moves) % 2 + 1
-print("player", player)
-print(state)
-print("START OF THE AI")
-
-# Add timer here
-start_time = time.time()
-optimal_move_result = find_optimal_move(state, player)
-end_time = time.time()
-
-computation_time = end_time - start_time
-print(f"AI MOVE: {optimal_move_result}")
-print(f"Time needed to compute AI move: {computation_time:.4f} seconds")
-env.step(optimal_move_result)

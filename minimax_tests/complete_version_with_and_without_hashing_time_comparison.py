@@ -1,6 +1,6 @@
 from famnit_gym.envs import mill
-from complete_minimax_implementations import alpha_beta_move_ordering
-from complete_minimax_implementations import alpha_beta_move_ordering_hashing
+from minimax_implementations import alpha_beta_move_ordering
+from minimax_implementations import alpha_beta_move_ordering_hashing
 import time
 
 
@@ -13,7 +13,7 @@ def setup_predefined_board(start_env, setup):
 
 
 # BENCHMARK TO COMPARE IMPLEMENTATIONS WITH AND WITHOUT HASHING
-def run_benchmark(iterations=100):
+def run_benchmark(iterations):
     # SETUP MOVES
     setup_moves = [
         [0, 1, 0],
@@ -307,4 +307,4 @@ def run_benchmark(iterations=100):
 
 
 # RUN BENCHMARK
-benchmark_results = run_benchmark(iterations=1000)
+benchmark_results = run_benchmark(iterations=10)
