@@ -1,12 +1,12 @@
 from famnit_gym.envs import mill
 import hashlib
+import time
 
-MAX_DEPTH = 200
-INF = MAX_DEPTH + 1
+INF = 200
+MOVES_COUNTER = 0
 
 
 def get_state_hash(current_state):
-    """Generate a unique hash for a game state."""
     state_data = (
         current_state.get_state(),
         current_state.get_phase(1),
@@ -19,20 +19,18 @@ def get_state_hash(current_state):
 
 def minimax(current_state, current_player, maximizing_player, maximizing, depth,
             alpha=-INF, beta=INF, visited_states=None):
-    """Minimax algorithm with alpha-beta pruning and state hashing."""
+    global MOVES_COUNTER
 
     if visited_states is None:
         visited_states = set()
 
-    # Compute a hash of the current state
     state_hash = get_state_hash(current_state)
 
-    # If already visited, skip to avoid cycles
     if state_hash in visited_states:
         return 0
     visited_states.add(state_hash)
 
-    if depth == 200:  # draw - maximum number of moves reached
+    if depth == 200 - moves_counter:  # draw
         return 0
 
     terminal_reward = INF - depth
@@ -40,12 +38,12 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
 
-    print(depth, alpha, beta)
     opponent = 3 - current_player
     best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
 
     for move in legal_moves:
+
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
 
@@ -57,7 +55,7 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
             depth + 1,
             alpha,
             beta,
-            visited_states.copy()  # keep each branch independent
+            visited_states.copy(),
         )
 
         if maximizing:
@@ -67,13 +65,15 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
             best_score = min(best_score, score)
             beta = min(beta, best_score)
 
-        if beta <= alpha:
+        if alpha >= beta:
             break
 
     return best_score
 
 
 def optimal_move(current_state, maximizing_player):
+    global MOVES_COUNTER
+
     best_score, best_move = -INF, None
     legal_moves = current_state.legal_moves(player=maximizing_player)
 
@@ -87,11 +87,16 @@ def optimal_move(current_state, maximizing_player):
             maximizing_player=maximizing_player,
             maximizing=False,
             depth=1,
+            alpha=best_score,
+            beta=INF,
+            visited_states=None,
         )
 
         if score > best_score:
             best_score, best_move = score, move
 
+        print(move, score)
+    moves_counter += 1
     return best_move
 
 
@@ -150,9 +155,160 @@ setup_moves = [
     [14, 13, 10],
     [19, 22, 0],
     [9, 8, 0],
+    [22, 19, 8],
+    [23, 24, 0],
+    [19, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+    [24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+    [1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+[1, 22, 0],
+[24, 23, 0],
+    [22, 1, 0],
+    [23, 24, 0],
+[1, 22, 0],
+[24, 23, 0],
 ]
 
-env = mill.env(render_mode="asci")
+MOVES_COUNTER = len(setup_moves)
+print(MOVES_COUNTER)
+
+env = mill.env()  # Fixed typo: "asci" -> "ascii"
 env = setup_predefined_board(env, setup_moves)
 
 observation, reward, termination, truncation, info = env.last()
@@ -163,6 +319,12 @@ print("player", player)
 print(state)
 print("START OF THE AI")
 
+# Add timer here
+start_time = time.time()
 optimal_move_result = optimal_move(state, player)
-print("AI MOVE: ", optimal_move_result)
+end_time = time.time()
+
+computation_time = end_time - start_time
+print(f"AI MOVE: {optimal_move_result}")
+print(f"Time needed to compute AI move: {computation_time:.4f} seconds")
 env.step(optimal_move_result)

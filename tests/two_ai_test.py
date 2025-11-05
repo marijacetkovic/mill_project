@@ -2,7 +2,7 @@ from famnit_gym.envs import mill
 import hashlib
 
 
-MAX_DEPTH = 3
+MAX_DEPTH = 5
 INF = 1000 + MAX_DEPTH
 
 
@@ -58,41 +58,73 @@ def evaluate_positions(current_state, player, opponent):
     return score
 
 
+def get_move_quality(current_state, move, player, maximizing_player):
+    # Make a shallow copy to evaluate the move
+    test_state = current_state.clone()
+    test_state.make_move(player, move)
+
+    # Use the same evaluation function as in minimax
+    return evaluate_state(test_state, maximizing_player)
+
+
+def order_moves(current_state, moves, player, maximizing_player, maximizing):
+    """
+    Order moves from best to worst based on quick evaluation.
+    For maximizing: best moves first
+    For minimizing: worst moves first (from maximizing player's perspective)
+    """
+    move_scores = []
+    for move in moves:
+        score = get_move_quality(current_state, move, player, maximizing_player)
+        move_scores.append((move, score))
+
+    # Sort by score (higher is better for maximizing player)
+    move_scores.sort(key=lambda x: x[1], reverse=maximizing)
+
+    # Return just the moves in sorted order
+    return [move for move, score in move_scores]
+
+
 def minimax(current_state, current_player, maximizing_player, maximizing, depth, visited_states=None, alpha=-INF,
             beta=INF):
-    terminal_reward = INF - depth
-
-    if depth == MAX_DEPTH:  # draw
-        return 0
-
-    if current_state.game_over():  # game over
-        return -terminal_reward if maximizing else terminal_reward
-
     if visited_states is None:
         visited_states = set()
 
     state_hash = get_state_hash(current_state)
 
-    if state_hash in visited_states:  # loop
+    if state_hash in visited_states:
         return 0
     else:
         visited_states.add(state_hash)
+
+    terminal_reward = INF - depth
+
+    if current_state.game_over():  # game over
+        return -terminal_reward if maximizing else terminal_reward
+
+    if depth == MAX_DEPTH:
+        return evaluate_state(current_state, maximizing_player)
 
     opponent = 3 - current_player
     best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
 
-    for move in legal_moves:
+    # Order moves for better pruning efficiency
+    ordered_moves = order_moves(current_state, legal_moves, current_player, maximizing_player, maximizing)
+
+    for move in ordered_moves:
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
         score = minimax(next_state, opponent, maximizing_player, not maximizing, depth + 1, visited_states.copy(),
                         alpha, beta)
 
         if maximizing:
-            best_score = max(best_score, score)
+            if score > best_score:
+                best_score = score
             alpha = max(alpha, best_score)
         else:
-            best_score = min(best_score, score)
+            if score < best_score:
+                best_score = score
             beta = min(beta, best_score)
 
         if beta <= alpha:
@@ -105,7 +137,10 @@ def optimal_move(current_state, maximizing_player):
     best_score, best_move = -INF, None
     legal_moves = current_state.legal_moves(player=maximizing_player)
 
-    for move in legal_moves:
+    # Order moves for the root node as well
+    ordered_moves = order_moves(current_state, legal_moves, maximizing_player, maximizing_player, True)
+
+    for move in ordered_moves:
         next_state = current_state.clone()
         next_state.make_move(maximizing_player, move)
         # The opponent becomes the minimizing player, but perspective stays with current_player
@@ -121,10 +156,16 @@ def optimal_move(current_state, maximizing_player):
     return best_move
 
 
-env = mill.env(render_mode="human")
+env = mill.env('human')
 env.reset()
 
+ai_player_1 = 1
+ai_player_2 = 3 - ai_player_1
+ai_moves_1, ai_moves_2 = 0, 0
+
 for agent in env.agent_iter():
+    current_player = 1 if agent == "player_1" else 2
+    print(agent)
     observation, reward, termination, truncation, info = env.last()
 
     if truncation:
@@ -132,6 +173,23 @@ for agent in env.agent_iter():
         break
 
     state = mill.transition_model(env)
-    player = 1 if agent == "player_1" else 2
-    optimal_move = optimal_move(state, player)
-    env.step(optimal_move)
+
+    if state.game_over():
+        print("Game over!")
+        print(state)
+        if state.get_phase(ai_player_1) == 'lost':
+            print("Second AI Won, moves needed", ai_moves_2)
+        else:
+            print("First AI won, moves needed", ai_moves_1)
+        break
+
+    if current_player == ai_player_1:
+        move = optimal_move(state, ai_player_1)
+        print("ai_move_1", move)
+        ai_moves_1 += 1
+    else:
+        move = optimal_move(state, ai_player_2)
+        print("ai_move_2", move)
+        ai_moves_2 += 1
+
+    env.step(move)

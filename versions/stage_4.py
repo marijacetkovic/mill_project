@@ -122,16 +122,10 @@ def optimal_move(current_state, maximizing_player):
     return best_move
 
 
-env = mill.env('human')
+env = mill.env(render_mode="ansi")
 env.reset()
 
-ai_player_1 = 1
-ai_player_2 = 3 - ai_player_1
-ai_moves_1, ai_moves_2 = 0, 0
-
 for agent in env.agent_iter():
-    current_player = 1 if agent == "player_1" else 2
-    print(agent)
     observation, reward, termination, truncation, info = env.last()
 
     if truncation:
@@ -139,23 +133,6 @@ for agent in env.agent_iter():
         break
 
     state = mill.transition_model(env)
-
-    if state.game_over():
-        print("Game over!")
-        print(state)
-        if state.get_phase(ai_player_1) == 'lost':
-            print("Second AI Won, moves needed", ai_moves_2)
-        else:
-            print("First AI won, moves needed", ai_moves_1)
-        break
-
-    if current_player == ai_player_1:
-        move = optimal_move(state, ai_player_1)
-        print("ai_move_1", move)
-        ai_moves_1 += 1
-    else:
-        move = optimal_move(state, ai_player_2)
-        print("ai_move_2", move)
-        ai_moves_2 += 1
-
+    player = 1 if agent == "player_1" else 2
+    move = optimal_move(state, player)
     env.step(move)

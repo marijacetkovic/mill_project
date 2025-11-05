@@ -1,12 +1,13 @@
 from famnit_gym.envs import mill
 import hashlib
-
+import time
 
 INF = 201
+visited_counter = 0  # Global counter
+start_time = None  # Global start time
 
 
 def get_state_hash(current_state):
-    """Generate a unique hash for a game state."""
     state_data = (
         current_state.get_state(),
         current_state.get_phase(1),
@@ -19,6 +20,8 @@ def get_state_hash(current_state):
 
 def minimax(current_state, current_player, maximizing_player, maximizing, depth,
             alpha=-INF, beta=INF, visited_states=None):
+    global visited_counter, start_time
+
     if visited_states is None:
         visited_states = set()
 
@@ -30,6 +33,17 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
         return 0
     visited_states.add(state_hash)
 
+    # Increment counter and check if it's a multiple of 1,000,000
+    visited_counter += 1
+    if visited_counter % 1000000 == 0:
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        nodes_per_second = 1000000 / elapsed_time if elapsed_time > 0 else float('inf')
+        print(
+            f"Nodes visited: {visited_counter} | Time for last 1M nodes: {elapsed_time:.2f}s | Speed: {nodes_per_second:.0f} nodes/s")
+        # Reset start time for the next million
+        start_time = current_time
+
     if depth == 200:  # draw - maximum number of moves reached
         return 0
 
@@ -38,7 +52,6 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
 
-    print(depth, alpha, beta)
     opponent = 3 - current_player
     best_score = -INF if maximizing else INF
     legal_moves = current_state.legal_moves(current_player)
@@ -72,10 +85,18 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
 
 
 def optimal_move(current_state, maximizing_player):
+    global visited_counter, start_time
+    visited_counter = 0  # Reset counter for each move
+    start_time = time.time()  # Reset timer for each move
+    print("Starting new move search...")
+
     best_score, best_move = -INF, None
     legal_moves = current_state.legal_moves(player=maximizing_player)
 
-    for move in legal_moves:
+    for move_index, move in enumerate(legal_moves):
+        print(f"Evaluating move {move_index + 1}/{len(legal_moves)}: {move}")
+        move_start_time = time.time()
+
         next_state = current_state.clone()
         next_state.make_move(maximizing_player, move)
 
@@ -87,12 +108,23 @@ def optimal_move(current_state, maximizing_player):
             depth=1,
         )
 
+        move_time = time.time() - move_start_time
+        print(f"Move {move} evaluated in {move_time:.2f}s with score {score}")
+
         if score > best_score:
             best_score, best_move = score, move
+            print(f"New best move: {best_move} with score {best_score}")
+
+    total_time = time.time() - start_time
+    if visited_counter > 0:
+        overall_speed = visited_counter / total_time
+        print(f"Move completed. Total nodes visited: {visited_counter}")
+        print(f"Total time: {total_time:.2f}s | Overall speed: {overall_speed:.0f} nodes/s")
 
     return best_move
 
 
+# ... rest of your code remains the same
 env = mill.env()
 env.reset()
 
