@@ -1,4 +1,4 @@
-from ai_player import AIPlayer
+from .ai_player import AIPlayer
 from famnit_gym.envs import mill
 
 
@@ -6,7 +6,7 @@ def main():
     env = mill.env(render_mode="ansi")
     env.reset()
 
-    player1_ai = AIPlayer(player_id=1, difficulty="medium")
+    player1_ai = AIPlayer(player_id=1, difficulty="hard")
     player2_ai = AIPlayer(player_id=2, difficulty="hard")
 
     for agent in env.agent_iter():

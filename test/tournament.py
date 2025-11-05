@@ -15,7 +15,7 @@ group_results = {
 }
 
 #symmetric, counts +1 win +1 loss when same difficulty plays itself
-def update_group_results(group_results, winner_diff=None, loser_diff=None, draw=False):
+def update_group_results(group_results, winner_diff, loser_diff, draw=False):
     if draw:
         group_results[winner_diff][0] += 1
         #if loser_diff and loser_diff != winner_diff:
@@ -62,7 +62,7 @@ for diff1 in difficulties:
                     else:
                         print("Game ended in a draw")
                         results[(key1, key2)]["draw"] += 1
-                        update_group_results(group_results, draw=True)
+                        update_group_results(group_results, diff1, diff2, draw=True)
                     break
 
                 state = mill.transition_model(env)
