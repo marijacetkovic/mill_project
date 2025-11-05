@@ -1,5 +1,4 @@
 INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWED
-MOVES_COUNTER = 0  # GLOBAL MOVE COUNTER - NUMBER OF MOVES ALREADY DONE
 
 
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE
@@ -59,14 +58,14 @@ def order_moves(current_state, current_player, maximizing_player, unordered_move
     return [move for move, score in move_scores]
 
 
-# RECURSIVE MINIMAX ALGORITHM WITH ALPHA-BETA PRUNING
+# RECURSIVE MINIMAX ALGORITHM WITH ALPHA-BETA PRUNING + MOVE ORDERING
 def minimax(current_state,
             current_player, maximizing_player,
-            state_depth, alpha=-INF, beta=INF):
-    global MOVES_COUNTER
+            state_depth, moves_counter,
+            alpha=-INF, beta=INF):
 
     # DRAW CONDITION - MAXIMUM GAME LENGTH REACHED
-    if state_depth == 200 - MOVES_COUNTER:
+    if state_depth == 200 - moves_counter:
         return 0
 
     # DETERMINE IF CURRENT PLAYER IS MAXIMIZING OR MINIMIZING
@@ -99,6 +98,7 @@ def minimax(current_state,
             current_player=3 - current_player,  # SWITCH PLAYER
             maximizing_player=maximizing_player,
             state_depth=state_depth + 1,
+            moves_counter=moves_counter,
             alpha=alpha,
             beta=beta,
         )
@@ -119,9 +119,7 @@ def minimax(current_state,
 
 
 # TOP-LEVEL MINIMAX FUNCTION THAT RETURNS THE OPTIMAL MOVE TO MAKE
-def find_optimal_move(current_state, maximizing_player):
-    global MOVES_COUNTER
-
+def find_optimal_move(current_state, maximizing_player, moves_counter):
     best_score, optimal_move = -INF, None
 
     # GET AND ORDER LEGAL MOVES FOR THE CURRENT PLAYER
@@ -143,6 +141,7 @@ def find_optimal_move(current_state, maximizing_player):
             current_player=3 - maximizing_player,  # SWITCH TO OPPONENT
             maximizing_player=maximizing_player,
             state_depth=1,  # START DEPTH COUNTER
+            moves_counter=moves_counter,
             alpha=best_score,  # USE CURRENT BEST AS ALPHA FOR PRUNING
             beta=INF,
         )
@@ -151,5 +150,4 @@ def find_optimal_move(current_state, maximizing_player):
         if score > best_score:
             best_score, optimal_move = score, move
 
-    MOVES_COUNTER += 1
     return optimal_move
