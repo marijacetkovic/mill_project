@@ -3,8 +3,11 @@ from famnit_gym.envs import mill
 import numpy as np 
 import matplotlib.pyplot as plt
 
-difficulties = ["easy", "medium", "hard"]
-num_games = 1
+difficulties = [#"easy", 
+    "medium"
+    #, "hard"
+    ]
+num_games = 10
 results = {}
 group_results = {}
 

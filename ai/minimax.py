@@ -13,9 +13,17 @@ def minimax(current_state, current_player, maximizing_player, maximizing, depth,
     visited_states.add(state_hash)
 
     # Check for terminal state
+    # if current_state.game_over():
+    #     terminal_reward = INF - depth
+    #     return -terminal_reward if maximizing else terminal_reward
+    
     if current_state.game_over():
-        terminal_reward = INF - depth
-        return -terminal_reward if maximizing else terminal_reward
+        if current_state._player[maximizing_player]['phase'] == 'lost':
+            return -INF + depth
+        elif current_state._player[3 - maximizing_player]['phase'] == 'lost':
+            return INF - depth   
+        else:
+            return 0  
 
     # Depth limit reached
     if depth >= max_depth:

@@ -69,7 +69,7 @@ def minimax_with_counter(current_state, current_player, maximizing_player,
     return best_score
 
 
-max_depths = list(range(0, 8))  
+max_depths = list(range(0, 4))  
 times = []
 scores = []
 nodes = []

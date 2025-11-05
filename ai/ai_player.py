@@ -11,11 +11,11 @@ class AIPlayer:
         self.depth_settings = {
             "easy": 2,
             "medium": 3,
-            "hard": 6
+            "hard": 5
         }
         self.rnd_settings = {
             "easy": 0.3,
-            "medium": 0.1,
+            "medium": 0,
             "hard": 0
         }
 
