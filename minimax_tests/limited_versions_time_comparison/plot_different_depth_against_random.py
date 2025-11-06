@@ -62,12 +62,12 @@ def plot_benchmark(results, save_path=None):
                  bbox=dict(boxstyle="round,pad=0.2", facecolor='white', alpha=0.8))
 
     # ADJUST x-LIMITS
-    ax1.set_xlim(-0.3, len(depths) - 0.7)
-    ax2.set_xlim(-0.3, len(depths) - 0.7)
+    ax1.set_xlim(-0.3, len(depths) - 0.65)
+    ax2.set_xlim(-0.3, len(depths) - 0.65)
 
     # ADJUST y-LIMITS
-    ax1.set_ylim(0, max(avg_times) + max(std_times) + max(std_times) * 0.7)
-    ax2.set_ylim(0, max(avg_moves) + max(std_moves) + max(std_moves) * 0.7)
+    ax1.set_ylim(min(avg_times) - max(std_times) * 0.3, max(avg_times) + max(std_times) + max(std_times) * 1.2)
+    ax2.set_ylim(min(avg_moves) - max(std_moves) * 0.3, max(avg_moves) + max(std_moves) + max(std_moves) * 1.2)
 
     # ADD GRID
     ax1.grid(True, alpha=0.3, axis='y')
