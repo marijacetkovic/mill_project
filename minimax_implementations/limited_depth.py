@@ -4,7 +4,30 @@ INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWE
 # COMPUTE HASH OF THE STATE
 def get_state_hash(current_state):
     state_data = current_state.get_state()
-    return str(state_data)  # RETURN STRING REPRESENTATION OF THE STATE OF THE BOARD
+    phase_data_1 = current_state.get_phase(1)
+    phase_data_2 = current_state.get_phase(2)
+
+    # ENCODE THE PHASES OF PLAYERS AS INTEGERS REPRESENTED AS STRINGS
+    if phase_data_1 == "placing":
+        phase_data_1 = "1"
+    elif phase_data_1 == "moving":
+        phase_data_1 = "2"
+    elif phase_data_1 == "flying":
+        phase_data_1 = "3"
+    else:
+        phase_data_1 = "4"
+
+    if phase_data_2 == "placing":
+        phase_data_2 = "1"
+    elif phase_data_2 == "moving":
+        phase_data_2 = "2"
+    elif phase_data_2 == "flying":
+        phase_data_2 = "3"
+    else:
+        phase_data_2 = "4"
+
+    # RETURN STRING REPRESENTATION OF THE STATE OF THE BOARD
+    return phase_data_1 + phase_data_2 + ''.join(map(str, state_data))
 
 
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE

@@ -211,7 +211,6 @@ def run_benchmark(iterations):
         [23, 24, 0],
         [1, 22, 0],
         [24, 23, 0],
-        [22, 1, 0],
     ]
 
     # INITIALIZE ENVIRONMENT AND STATE
@@ -222,10 +221,11 @@ def run_benchmark(iterations):
     current_player = number_of_precomputed_moves % 2 + 1
 
     # INITIAL INFORMATION
-    print(f"Benchmark Configuration:")
-    print(f"  Current Player: {current_player}")
-    print(f"  Precomputed Moves: {number_of_precomputed_moves}")
-    print(f"  Iterations: {iterations}")
+    print(f"BENCHMARK CONFIGURATION:")
+    print("-" * 70)
+    print(f"Current Player: {current_player}")
+    print(f"Precomputed Moves: {number_of_precomputed_moves}")
+    print(f"Iterations: {iterations}")
     print(f"Board State:\n{precomputed_state}")
     print("\n" + "=" * 70)
 
@@ -234,9 +234,6 @@ def run_benchmark(iterations):
         ("Alpha-Beta with Move Ordering", alpha_beta_move_ordering.find_optimal_move),
         ("Alpha-Beta with Move Ordering and Hashing", alpha_beta_move_ordering_hashing.find_optimal_move)
     ]
-
-    print("\nBenchmark Results:")
-    print("-" * 70)
 
     results = []
 
@@ -282,13 +279,13 @@ def run_benchmark(iterations):
 
     # DISPLAY COMPARISON RESULTS
     print("\n" + "=" * 70)
-    print("COMPARISON SUMMARY:")
-    print("=" * 70)
+    print("\nBENCHMARK RESULTS:")
+    print("-" * 70)
 
     for result in results:
-        print(f"\n{result['name']}:")
-        print(f"  Average Time: {result['avg_time']:.6f}s")
+        print(f"{result['name']}:")
         print(f"  First Move: {result['first_move']}")
+        print(f"  Average Time: {result['avg_time']:.6f}s\n")
 
     # CALCULATE SPEEDUP
     if len(results) == 2:
@@ -296,7 +293,7 @@ def run_benchmark(iterations):
         time2 = results[1]['avg_time']
         if time1 > 0 and time2 > 0:
             speedup = time1 / time2
-            print(f"\nSpeedup: {speedup:.2f}x")
+            print(f"SPEEDUP: {speedup:.2f}x")
 
             if speedup > 1:
                 print(f"Implementation WITH Hashing is {speedup:.2f}x faster")

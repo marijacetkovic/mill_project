@@ -225,11 +225,13 @@ env = setup_predefined_board(start_env=env,
 precomputed_state = mill.transition_model(env)
 current_player = len(setup_moves) % 2 + 1
 
-# INPUT INFORMATION
-print(f"It is the turn of {current_player}, Number of already performed steps is {number_of_precomputed_moves}")
-print(f"STATE OF THE BOARD IS: "
-      f"\n"
-      f"{precomputed_state}")
+# INITIAL INFORMATION
+print(f"BENCHMARK CONFIGURATION:")
+print("-" * 70)
+print(f"Current Player: {current_player}")
+print(f"Precomputed Moves: {number_of_precomputed_moves}")
+print(f"Board State:\n{precomputed_state}")
+print("\n" + "=" * 70)
 
 # CONSIDERED IMPLEMENTATIONS
 implementations = [
@@ -239,8 +241,9 @@ implementations = [
     ("Alpha-Beta with Move Ordering and Hashing", alpha_beta_move_ordering_hashing.find_optimal_move)
 ]
 
-print("\nTiming Comparison:")
-print("-" * 73)
+
+print("\nBENCHMARK RESULTS:")
+print("-" * 70)
 
 for name, implementation in implementations:
     start_time = time.time()
