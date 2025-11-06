@@ -109,3 +109,4 @@ for ylabel, ydata, title, marker, color in plots:
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+

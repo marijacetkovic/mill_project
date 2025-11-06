@@ -1,7 +1,9 @@
 from famnit_gym.envs import mill
 from minimax_implementations import limited_depth
-import time
 import random
+import time
+import math
+import json
 
 
 # BENCHMARK FOR PERFORMANCE OF MINIMAX WITH LIMITED DEPTH AGAINST RANDOM PLAYER
@@ -22,6 +24,10 @@ def run_benchmark(max_depth_list, iterations_per_depth):
         wins = 0
         games_played = 0
 
+        # LISTS TO STORE INDIVIDUAL DATA POINTS FOR STANDARD DEVIATION
+        ai_move_times = []  # Individual AI move computation times
+        ai_moves_per_game_list = []  # AI moves count per game
+
         # COMPUTE FOR THE NUMBER OF ITERATIONS
         for game_iteration in range(iterations_per_depth):
 
@@ -31,6 +37,8 @@ def run_benchmark(max_depth_list, iterations_per_depth):
             ai_player = random.randint(1, 2)
             random_player = 3 - ai_player
             total_moves_in_game = 0
+            ai_moves_this_game = 0
+            ai_time_this_game = 0.0
 
             # ALTERNATE BETWEEN PLAYERS
             for agent in env.agent_iter():
@@ -40,6 +48,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
                 # DRAW
                 if truncation:
                     games_played += 1
+                    ai_moves_per_game_list.append(ai_moves_this_game)
                     break
 
                 state = mill.transition_model(env)
@@ -49,7 +58,9 @@ def run_benchmark(max_depth_list, iterations_per_depth):
                     # AI WON
                     if state.get_phase(random_player) == 'lost':
                         wins += 1
+
                     games_played += 1
+                    ai_moves_per_game_list.append(ai_moves_this_game)
                     break
 
                 # COMPUTE OPTIMAL MOVE FOR AI
@@ -66,8 +77,11 @@ def run_benchmark(max_depth_list, iterations_per_depth):
                     # STORE TIME
                     computation_time = end_time - start_time
                     total_ai_time += computation_time
+                    ai_time_this_game += computation_time
+                    ai_move_times.append(computation_time)  # Store individual move time
 
                     total_ai_moves += 1
+                    ai_moves_this_game += 1
                     total_moves_in_game += 1
                 else:
                     # MOVE OF RANDOM PLAYER
@@ -85,25 +99,41 @@ def run_benchmark(max_depth_list, iterations_per_depth):
         avg_time_per_ai_move = total_ai_time / total_ai_moves
         win_rate = (wins / games_played) * 100
 
+        # CALCULATE STANDARD DEVIATIONS
+        def calculate_std_dev(data, mean):
+            if len(data) <= 1:
+                return 0
+            variance = sum((x - mean) ** 2 for x in data) / len(data)
+            return math.sqrt(variance)
+
+        # STANDARD DEVIATION FOR TIMES OF AI MOVE
+        std_time_per_move = calculate_std_dev(ai_move_times,
+                                              avg_time_per_ai_move)
+
+        # STANDARD DEVIATION FOR NUMBER OF AI MOVES PER GAME
+        std_moves_per_game = calculate_std_dev(ai_moves_per_game_list,
+                                               avg_ai_moves_per_game)
+
         results[max_depth] = {
             'win_rate': win_rate,
             'avg_ai_moves_per_game': avg_ai_moves_per_game,
-            'avg_time_per_ai_move': avg_time_per_ai_move
+            'std_ai_moves_per_game': std_moves_per_game,
+            'avg_time_per_ai_move': avg_time_per_ai_move,
+            'std_time_per_ai_move': std_time_per_move
         }
 
         print(f"\nResults for max_depth = {max_depth}:")
-        print(f"  Win Rate: {win_rate:.1f}")
-        print(f"  Average Moves per Game: {avg_ai_moves_per_game:.6f}")
-        print(f"  Average Time per AI Move: {avg_time_per_ai_move:.6f}s")
+        print(f"  Win Rate: {win_rate:.1f}%")
+        print(f"  Average Moves per Game: {avg_ai_moves_per_game:.6f} ± {std_moves_per_game:.6f}")
+        print(f"  Average Time per AI Move: {avg_time_per_ai_move:.6f}s ± {std_time_per_move:.6f}s")
 
     return results
 
 
-# DEFINE THE MAX DEPTH VALUES TO BE TESTED
-max_depth_values = [1, 2, 3, 4]
+if __name__ == "__main__":
+    max_depth_values = [1, 2, 3, 4]
+    game_results = run_benchmark(max_depth_values, 10)
 
-# RUN BENCHMARK
-game_results = run_benchmark(
-    max_depth_list=max_depth_values,
-    iterations_per_depth=10
-)
+    # SAVE RESULTS TO JSON
+    with open('game_results.json', 'w') as f:
+        json.dump(game_results, f, indent=2)
