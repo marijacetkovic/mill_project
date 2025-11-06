@@ -83,8 +83,8 @@ def plot_benchmark(results, save_path=None):
 
 if __name__ == "__main__":
     # LOAD RESULTS FROM JSON
-    with open('game_results.json', 'r') as f:
+    with open('output_files/game_results.json', 'r') as f:
         game_results = json.load(f)
 
     # CREATE AND SAVE PLOTS IN DIFFERENT FORMATS
-    plot_benchmark(game_results, save_path='benchmark_results.png')
+    plot_benchmark(game_results, save_path='output_files/benchmark_results.png')

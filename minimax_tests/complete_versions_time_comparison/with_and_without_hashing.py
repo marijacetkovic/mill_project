@@ -304,4 +304,4 @@ def run_benchmark(iterations):
 
 
 # RUN BENCHMARK
-benchmark_results = run_benchmark(iterations=10)
+benchmark_results = run_benchmark(iterations=100)

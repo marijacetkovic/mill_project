@@ -135,5 +135,5 @@ if __name__ == "__main__":
     game_results = run_benchmark(max_depth_values, 10)
 
     # SAVE RESULTS TO JSON
-    with open('game_results.json', 'w') as f:
+    with open('output_files/game_results.json', 'w') as f:
         json.dump(game_results, f, indent=2)
