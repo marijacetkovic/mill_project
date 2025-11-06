@@ -3,6 +3,7 @@ import gymnasium as gym
 from famnit_gym.envs import mill
 from famnit_gym.wrappers.mill import UserInteraction
 
+
 def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
     
     env = mill.env(render_mode='human')
@@ -153,4 +154,4 @@ def human_vs_ai(human_player = 1, ai_difficulty = "medium"):
 
 
 if __name__ == "__main__":
-    human_vs_ai(1, "easy")
+    human_vs_ai(1, "medium")
