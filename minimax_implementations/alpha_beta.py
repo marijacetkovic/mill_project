@@ -5,7 +5,7 @@ INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWE
 def minimax(current_state,
             current_player, maximizing_player,
             state_depth, moves_counter,
-            alpha=-INF, beta=INF):
+            alpha, beta):
 
     # DRAW CONDITION - MAXIMUM GAME LENGTH REACHED
     if state_depth == 200 - moves_counter:

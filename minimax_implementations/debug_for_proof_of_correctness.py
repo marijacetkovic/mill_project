@@ -1,18 +1,47 @@
 INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWED
 
 
+# COMPUTE HASH OF THE STATE
+def get_state_hash(current_state):
+    state_data = current_state.get_state()
+    phase_data_1 = current_state.get_phase(1)
+    phase_data_2 = current_state.get_phase(2)
+
+    # ENCODE THE PHASES OF PLAYERS AS INTEGERS REPRESENTED AS STRINGS
+    if phase_data_1 == "placing":
+        phase_data_1 = "1"
+    elif phase_data_1 == "moving":
+        phase_data_1 = "2"
+    elif phase_data_1 == "flying":
+        phase_data_1 = "3"
+    else:
+        phase_data_1 = "4"
+
+    if phase_data_2 == "placing":
+        phase_data_2 = "1"
+    elif phase_data_2 == "moving":
+        phase_data_2 = "2"
+    elif phase_data_2 == "flying":
+        phase_data_2 = "3"
+    else:
+        phase_data_2 = "4"
+
+    # RETURN STRING REPRESENTATION OF THE STATE OF THE BOARD
+    return phase_data_1 + phase_data_2 + ''.join(map(str, state_data))
+
+
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE
 def evaluate_state(current_state, maximizing_player):
     if maximizing_player == 1:
         p1_pieces = current_state.count_pieces(1)
         p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p1_pieces - p2_pieces) * 9
-        position_advantage = evaluate_positions(current_state, 1, 2)
+        piece_advantage = (p1_pieces - p2_pieces) * 8
+        position_evaluation = evaluate_positions(current_state, 1, 2)
     else:
         p1_pieces = current_state.count_pieces(1)
         p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p2_pieces - p1_pieces) * 9
-        position_advantage = evaluate_positions(current_state, 2, 1)
+        piece_advantage = (p2_pieces - p1_pieces) * 8
+        position_evaluation = evaluate_positions(current_state, 2, 1)
 
     # piece_advantage: maximal value is (9 - 2) * 9 = 63, minimal is  -63
     # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 9) = 8, minimal is -8
@@ -20,7 +49,7 @@ def evaluate_state(current_state, maximizing_player):
     # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
 
     # EVALUATE THE TOTAL ADVANTAGE
-    evaluated_score = piece_advantage + position_advantage
+    evaluated_score = piece_advantage + position_evaluation
     return evaluated_score
 
 
@@ -68,7 +97,22 @@ def order_moves(current_state, current_player, maximizing_player, unordered_move
 def minimax(current_state,
             current_player, maximizing_player,
             state_depth, moves_counter,
-            alpha, beta):
+            alpha=-INF, beta=INF,
+            visited_states=None):
+
+    # INITIALIZE SET OF VISITED STATES IF EMPTY
+    if visited_states is None:
+        visited_states = set()
+
+    # COMPUTE HASH
+    state_hash = get_state_hash(current_state)
+
+    # IF VISITED, CONSIDER AS A DRAW (easier to handle, does not affect the logic)
+    if state_hash in visited_states:
+        return 0
+
+    # IF NOT VISITED, ADD TO THE SET OF VISITED
+    visited_states.add(state_hash)
 
     # DRAW CONDITION - MAXIMUM GAME LENGTH REACHED
     if state_depth == 200 - moves_counter:
@@ -107,15 +151,20 @@ def minimax(current_state,
             moves_counter=moves_counter,
             alpha=alpha,
             beta=beta,
+            visited_states=visited_states.copy()  # PASS A COPY OF VISITED TO THE BRANCH
         )
 
         # UPDATE BEST SCORE AND ALPHA/BETA VALUES
         if maximizing:
             final_score = max(final_score, score)
             alpha = max(alpha, final_score)
+            if alpha != 0:
+                print("alpha is", alpha)
         else:
             final_score = min(final_score, score)
             beta = min(beta, final_score)
+            if beta != 0:
+                print("beta is", beta)
 
         # ALPHA-BETA PRUNING - STOP EVALUATING IF BRANCH IS WORSE THAN KNOWN ALTERNATIVE
         if alpha >= beta:
@@ -146,12 +195,13 @@ def find_optimal_move(current_state, maximizing_player, moves_counter):
             current_state=next_state,
             current_player=3 - maximizing_player,  # SWITCH TO OPPONENT
             maximizing_player=maximizing_player,
-            state_depth=1,  # START DEPTH COUNTER
+            state_depth=1,
             moves_counter=moves_counter,
             alpha=best_score,  # USE CURRENT BEST AS ALPHA FOR PRUNING
             beta=INF,
+            visited_states=None
         )
-
+        print("SCORE:", score)
         # UPDATE BEST MOVE IF A BETTER SCORE IS FOUND
         if score > best_score:
             best_score, optimal_move = score, move

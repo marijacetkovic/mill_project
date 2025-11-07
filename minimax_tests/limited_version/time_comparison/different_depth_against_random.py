@@ -131,7 +131,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
 
 
 if __name__ == "__main__":
-    max_depth_values = [1, 2, 3, 4]
+    max_depth_values = [1, 2]
     game_results = run_benchmark(max_depth_values, 10)
 
     # SAVE RESULTS TO JSON

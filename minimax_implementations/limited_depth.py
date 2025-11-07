@@ -43,8 +43,18 @@ def evaluate_state(current_state, maximizing_player):
         piece_advantage = (p2_pieces - p1_pieces) * 8
         position_evaluation = evaluate_positions(current_state, 2, 1)
 
+    # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -63
+    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 2) = 29, minimal is -29
+    # THAT IS WHY 30 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
+    # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
+
+    # EVALUATE THE TOTAL ADVANTAGE
     evaluated_score = piece_advantage + position_evaluation
-    return evaluated_score
+
+    # NORMALIZE, SO THAT THE RANGE IS [-1, 1] (this is done so that the true terminating state is
+    # always preferred to the heuristically evaluated state)
+    normalized_score = evaluated_score / 210
+    return normalized_score
 
 
 # EVALUATES BOARD POSITIONS BY ASSIGNING VALUES TO STRATEGIC POSITIONS
@@ -92,8 +102,8 @@ def minimax(current_state,
             current_player, maximizing_player,
             state_depth, max_depth,
             moves_counter,
-            alpha=-INF, beta=INF,
-            visited_states=None):
+            alpha, beta,
+            visited_states):
 
     # INITIALIZE SET OF VISITED STATES IF EMPTY
     if visited_states is None:

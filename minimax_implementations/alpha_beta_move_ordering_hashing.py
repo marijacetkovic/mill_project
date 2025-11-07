@@ -43,6 +43,12 @@ def evaluate_state(current_state, maximizing_player):
         piece_advantage = (p2_pieces - p1_pieces) * 8
         position_evaluation = evaluate_positions(current_state, 2, 1)
 
+    # piece_advantage: maximal value is (9 - 2) * 9 = 63, minimal is  -63
+    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 9) = 8, minimal is -8
+    # THAT IS WHY 9 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
+    # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
+
+    # EVALUATE THE TOTAL ADVANTAGE
     evaluated_score = piece_advantage + position_evaluation
     return evaluated_score
 
@@ -91,8 +97,8 @@ def order_moves(current_state, current_player, maximizing_player, unordered_move
 def minimax(current_state,
             current_player, maximizing_player,
             state_depth, moves_counter,
-            alpha=-INF, beta=INF,
-            visited_states=None):
+            alpha, beta,
+            visited_states):
 
     # INITIALIZE SET OF VISITED STATES IF EMPTY
     if visited_states is None:
@@ -101,7 +107,7 @@ def minimax(current_state,
     # COMPUTE HASH
     state_hash = get_state_hash(current_state)
 
-    # IF VISITED, CONSIDER AS A DRAW
+    # IF VISITED, CONSIDER AS A DRAW (easier to handle, does not affect the logic)
     if state_hash in visited_states:
         return 0
 

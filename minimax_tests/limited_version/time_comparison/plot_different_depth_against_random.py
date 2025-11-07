@@ -20,7 +20,7 @@ def plot_benchmark(results, save_path=None):
 
     # PLOT 1: Computation Time
     ax1.errorbar(x_pos, avg_times, yerr=std_times, capsize=5, capthick=2,
-                 color='darkred', alpha=0.8, linewidth=2.5, marker='o', markersize=8,
+                 color='darkred', alpha=1, linewidth=2.5, marker='o', markersize=8,
                  markerfacecolor='darkred', markeredgecolor='black', markeredgewidth=1)
     ax1.set_title('Computation Time per AI Move\n(Mean ± Standard Deviation)', fontsize=14, fontweight='bold')
     ax1.set_xlabel('Search Depth', fontsize=12)
@@ -32,11 +32,11 @@ def plot_benchmark(results, save_path=None):
     for i, (x, y, win_rate) in enumerate(zip(x_pos, avg_times, win_rates)):
         ax1.text(x, y + std_times[i] + max(std_times) * 0.4,
                  f'{win_rate:.1f}% Win', ha='center', va='bottom', fontweight='bold',
-                 bbox=dict(boxstyle="round,pad=0.3", facecolor='yellow', alpha=0.7))
+                 bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
     # PLOT 2: Number of Moves
     ax2.errorbar(x_pos, avg_moves, yerr=std_moves, capsize=5, capthick=2,
-                 color='darkblue', alpha=0.8, linewidth=2.5, marker='s', markersize=8,
+                 color='darkblue', alpha=1, linewidth=2.5, marker='o', markersize=8,
                  markerfacecolor='darkblue', markeredgecolor='black', markeredgewidth=2)
     ax2.set_title('AI Moves per Game\n(Mean ± Standard Deviation)', fontsize=14, fontweight='bold')
     ax2.set_xlabel('Search Depth', fontsize=12)
@@ -48,7 +48,7 @@ def plot_benchmark(results, save_path=None):
     for i, (x, y, win_rate) in enumerate(zip(x_pos, avg_moves, win_rates)):
         ax2.text(x, y + std_moves[i] + max(std_moves) * 0.4,
                  f'{win_rate:.1f}% Win', ha='center', va='bottom', fontweight='bold',
-                 bbox=dict(boxstyle="round,pad=0.3", facecolor='yellow', alpha=0.7))
+                 bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
     # ADD VALUE LABELS BELOW the data points
     for i, (v, std) in enumerate(zip(avg_times, std_times)):

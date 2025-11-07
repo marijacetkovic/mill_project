@@ -1,5 +1,5 @@
 from famnit_gym.envs import mill
-from minimax_implementations import alpha_beta_move_ordering_hashing
+from minimax_implementations import debug_for_proof_of_correctness
 
 
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
@@ -36,10 +36,6 @@ setup_moves = [
     [10, 11, 0],
     [19, 22, 0],
     [18, 21, 0],
-    [1, 10, 0],
-    [6, 14, 0],
-    [10, 1, 0],
-    [14, 6, 0],
     [1, 10, 0],
     [6, 14, 0],
     [10, 1, 0],
@@ -206,7 +202,7 @@ setup_moves = [
 ]
 
 # INITIALIZE ENVIRONMENT AND PRECOMPUTE THE STATE
-env = setup_predefined_board(mill.env(render_mode="ansi"), setup_moves)
+env = setup_predefined_board(mill.env(render_mode=""), setup_moves)
 precomputed_state = mill.transition_model(env)
 number_of_precomputed_moves = len(setup_moves)
 current_player = number_of_precomputed_moves % 2 + 1
@@ -244,7 +240,7 @@ for agent in env.agent_iter():
 
     # AI MOVE SELECTION
     if current_player == ai_player_1:
-        move = alpha_beta_move_ordering_hashing.find_optimal_move(
+        move = for_proof_of_correctness.find_optimal_move(
             current_state=state,
             maximizing_player=current_player,
             moves_counter=number_of_precomputed_moves + ai_moves
@@ -252,7 +248,7 @@ for agent in env.agent_iter():
         print(f"AI Player {current_player} move: {move}")
         ai_moves += 1
     else:
-        move = alpha_beta_move_ordering_hashing.find_optimal_move(
+        move = for_proof_of_correctness.find_optimal_move(
             current_state=state,
             maximizing_player=current_player,
             moves_counter=number_of_precomputed_moves + ai_moves
