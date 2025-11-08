@@ -1,4 +1,4 @@
-from minimax_tests.by_points.second.class_difficulty import AIDifficulty
+from minimax_tests.by_points.second.ai_player_with_difficulty import AiPlayerWithDifficulty
 from famnit_gym.envs import mill
 from tabulate import tabulate
 
@@ -37,8 +37,8 @@ def run_benchmark(difficulties_list, num_games):
                 env = mill.env()
                 env.reset()
 
-                ai1 = AIDifficulty(player_id=1, difficulty=diff1)
-                ai2 = AIDifficulty(player_id=2, difficulty=diff2)
+                ai1 = AiPlayerWithDifficulty(player_id=1, difficulty=diff1)
+                ai2 = AiPlayerWithDifficulty(player_id=2, difficulty=diff2)
 
                 total_moves_in_game = 0
 

@@ -3,7 +3,7 @@ import random
 
 
 # CLASS THAT REPRESENTS DIFFERENT DIFFICULTIES
-class AIDifficulty:
+class AiPlayerWithDifficulty:
     def __init__(self, player_id, difficulty):
         self.player_id = player_id
         self.difficulty = difficulty
