@@ -1,16 +1,16 @@
 {
   "1": {
-    "win_rate": 50.0,
-    "avg_ai_moves_per_game": 60.0,
-    "std_ai_moves_per_game": 40.0,
-    "avg_time_per_ai_move": 0.0017485424997479035,
-    "std_time_per_ai_move": 0.0007262760708409734
+    "win_rate": 100.0,
+    "avg_ai_moves_per_game": 16.5,
+    "std_ai_moves_per_game": 1.5,
+    "avg_time_per_ai_move": 0.0016839303002184765,
+    "std_time_per_ai_move": 0.0005804677485470107
   },
   "2": {
     "win_rate": 100.0,
-    "avg_ai_moves_per_game": 23.5,
-    "std_ai_moves_per_game": 6.5,
-    "avg_time_per_ai_move": 0.016973008511914932,
-    "std_time_per_ai_move": 0.009345150336892798
+    "avg_ai_moves_per_game": 18.0,
+    "std_ai_moves_per_game": 5.0,
+    "avg_time_per_ai_move": 0.018089827777455665,
+    "std_time_per_ai_move": 0.013159418194351647
   }
 }

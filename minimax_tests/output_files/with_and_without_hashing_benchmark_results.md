@@ -2,7 +2,7 @@ BENCHMARK CONFIGURATION:
 ----------------------------------------------------------------------
 Iterations: 2
 Current Player: 2
-Precomputed Moves: 191
+Precomputed Moves: 195
 Board State:
 0---------0---------0
 | \       |       / |
@@ -18,7 +18,7 @@ Board State:
 ======================================================================
 | Algorithm                                 | Optimal Move   | Average Computation Time   |
 |-------------------------------------------|----------------|----------------------------|
-| Alpha-Beta with Move Ordering             | [22, 19, 13]   | 487.3764s                  |
-| Alpha-Beta with Move Ordering and Hashing | [22, 19, 13]   | 467.5857s                  |
+| Alpha-Beta with Move Ordering             | [22, 19, 13]   | 3.6517s                    |
+| Alpha-Beta with Move Ordering and Hashing | [22, 19, 13]   | 3.5814s                    |
 --------------------------------------------------------------------------------------------
-Implementation WITHOUT Hashing is 1.04x faster
+Implementation WITH Hashing is 1.02x faster
