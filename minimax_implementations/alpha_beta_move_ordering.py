@@ -98,6 +98,10 @@ def minimax(current_state,
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
 
+        # ALPHA-BETA PRUNING
+        if alpha >= beta:
+            break
+
         # RECURSIVELY EVALUATE THE RESULTING POSITION
         score = minimax(
             current_state=next_state,
@@ -117,7 +121,7 @@ def minimax(current_state,
             final_score = min(final_score, score)
             beta = min(beta, final_score)
 
-        # ALPHA-BETA PRUNING - STOP EVALUATING IF BRANCH IS WORSE THAN KNOWN ALTERNATIVE
+        # ALPHA-BETA PRUNING
         if alpha >= beta:
             break
 
@@ -151,6 +155,8 @@ def find_optimal_move(current_state, maximizing_player, moves_counter):
             alpha=best_score,  # USE CURRENT BEST AS ALPHA FOR PRUNING
             beta=INF,
         )
+
+        print(move, score)
 
         # UPDATE BEST MOVE IF A BETTER SCORE IS FOUND
         if score > best_score:

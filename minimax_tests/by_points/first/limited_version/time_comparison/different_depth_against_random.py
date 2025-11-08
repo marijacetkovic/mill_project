@@ -127,13 +127,13 @@ def run_benchmark(max_depth_list, iterations_per_depth):
         print(f"  Average Moves per Game: {avg_ai_moves_per_game:.6f} ± {std_moves_per_game:.6f}")
         print(f"  Average Time per AI Move: {avg_time_per_ai_move:.6f}s ± {std_time_per_move:.6f}s")
 
+    # SAVE RESULTS TO JSON
+    with open('output_files/different_depth_against_random_results.json', 'w') as f:
+        json.dump(results, f, indent=2)
+
     return results
 
 
 if __name__ == "__main__":
-    max_depth_values = [1, 2]
-    game_results = run_benchmark(max_depth_values, 10)
-
-    # SAVE RESULTS TO JSON
-    with open('output_files/game_results.json', 'w') as f:
-        json.dump(game_results, f, indent=2)
+    max_depth_values = [1, 2, 3, 4]
+    game_results = run_benchmark(max_depth_values, iterations_per_depth=10)

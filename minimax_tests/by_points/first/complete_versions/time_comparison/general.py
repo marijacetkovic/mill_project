@@ -272,7 +272,7 @@ def run_benchmark():
         results.append([name, optimal_move, computation_time])
 
     # CREATE TABLE
-    console_results = [[name, move, f"{time:.4f}s"] for name, move, time in results]
+    console_results = [[name, move, f"{computation_time:.4f}s"] for name, move, computation_time in results]
     headers = ["Algorithm", "Optimal Move", "Computation Time"]
     md_table = tabulate(console_results, headers=headers, tablefmt="github")
 
@@ -290,13 +290,11 @@ def run_benchmark():
         f.write(f"Board State:\n{precomputed_state}\n")
         f.write("=" * 70 + "\n")
 
-        f.write("BENCHMARK RESULTS:\n")
-        f.write("-" * 70 + "\n")
-
         f.write(md_table + "\n")
 
     return results
 
 
+# RUN BENCHMARK
 if __name__ == "__main__":
     run_benchmark()

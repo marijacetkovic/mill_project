@@ -15,9 +15,7 @@ Board State:
 | /       |       \ |
 0---------1---------0
 ======================================================================
-BENCHMARK RESULTS:
-----------------------------------------------------------------------
 | Algorithm                                 | Optimal Move   | Computation Time   |
 |-------------------------------------------|----------------|--------------------|
-| Alpha-Beta with Move Ordering             | [23, 9, 20]    | 1.7274s            |
-| Alpha-Beta with Move Ordering and Hashing | [23, 9, 20]    | 1.6215s            |
+| Alpha-Beta with Move Ordering             | [23, 9, 20]    | 1.5762s            |
+| Alpha-Beta with Move Ordering and Hashing | [23, 9, 20]    | 1.5305s            |

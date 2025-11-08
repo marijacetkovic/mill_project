@@ -17,7 +17,7 @@ group_results = {
     for diff in difficulties
 }
 
-#symmetric, counts +1 win +1 loss when same difficulty plays itself
+# symmetric, counts +1 win +1 loss when same difficulty plays itself
 def update_group_results(group_results, winner_diff, loser_diff, draw=False):
     if draw:
         group_results[winner_diff][0] += 1

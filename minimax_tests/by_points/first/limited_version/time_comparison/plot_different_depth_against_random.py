@@ -4,19 +4,26 @@ import json
 
 
 # CREATE TWO mean+SD PLOTS (TIME AND NUMBER OF MOVES) WITH WIN RATE TAGS
-def plot_benchmark(results, save_path=None):
+def plot_benchmark():
+    # LOAD RESULTS FROM JSON
+    with open('output_files/different_depth_against_random_results.json', 'r') as f:
+        game_results = json.load(f)
+
+    # SAVE PATH
+    save_path = 'output_files/different_depth_against_random_plot.png'
+
     # TWO PLOTS ON THE SAME FIGURE
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    depths = list(results.keys())
+    depths = list(game_results.keys())
     x_pos = np.arange(len(depths))
 
     # PREPARE DATA
-    avg_times = [results[d]['avg_time_per_ai_move'] for d in depths]
-    std_times = [results[d]['std_time_per_ai_move'] for d in depths]
-    avg_moves = [results[d]['avg_ai_moves_per_game'] for d in depths]
-    std_moves = [results[d]['std_ai_moves_per_game'] for d in depths]
-    win_rates = [results[d]['win_rate'] for d in depths]
+    avg_times = [game_results[d]['avg_time_per_ai_move'] for d in depths]
+    std_times = [game_results[d]['std_time_per_ai_move'] for d in depths]
+    avg_moves = [game_results[d]['avg_ai_moves_per_game'] for d in depths]
+    std_moves = [game_results[d]['std_ai_moves_per_game'] for d in depths]
+    win_rates = [game_results[d]['win_rate'] for d in depths]
 
     # PLOT 1: Computation Time
     ax1.errorbar(x_pos, avg_times, yerr=std_times, capsize=5, capthick=2,
@@ -66,8 +73,10 @@ def plot_benchmark(results, save_path=None):
     ax2.set_xlim(-0.3, len(depths) - 0.65)
 
     # ADJUST y-LIMITS
-    ax1.set_ylim(min(avg_times) - max(std_times) * 0.3, max(avg_times) + max(std_times) + max(std_times) * 1.2)
-    ax2.set_ylim(min(avg_moves) - max(std_moves) * 0.3, max(avg_moves) + max(std_moves) + max(std_moves) * 1.2)
+    lower_y_times = min([avg - std for (avg, std) in zip(avg_times, std_times)])
+    lower_y_moves = min([avg - std for (avg, std) in zip(avg_moves, std_moves)])
+    ax1.set_ylim(lower_y_times - 0.125, max(avg_times) + max(std_times) + max(std_times) * 1.2)
+    ax2.set_ylim(lower_y_moves - 10, max(avg_moves) + max(std_moves) + max(std_moves) * 1.2)
 
     # ADD GRID
     ax1.grid(True, alpha=0.3, axis='y')
@@ -75,16 +84,11 @@ def plot_benchmark(results, save_path=None):
 
     plt.tight_layout()
 
-    if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
 
     plt.show()
 
 
 if __name__ == "__main__":
-    # LOAD RESULTS FROM JSON
-    with open('output_files/game_results.json', 'r') as f:
-        game_results = json.load(f)
-
     # CREATE AND SAVE PLOTS IN DIFFERENT FORMATS
-    plot_benchmark(game_results, save_path='output_files/benchmark_results.png')
+    plot_benchmark()

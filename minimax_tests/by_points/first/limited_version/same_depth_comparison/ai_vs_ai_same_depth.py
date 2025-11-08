@@ -1,6 +1,6 @@
 from famnit_gym.envs import mill
 from minimax_implementations import limited_depth
-import json
+from tabulate import tabulate
 
 
 # BENCHMARK FOR HOW LIMITED DEPTH AI PERFORMS WHEN PLAYING AGAINST THE SAME LIMITED DEPTH AI
@@ -64,13 +64,31 @@ def run_benchmark(max_depth_list):
 
         print("-" * 70)
 
+    print("=" * 70 + "\n")
+    print("BENCHMARK SUMMARY:")
+
+    # CREATE TABLE
+    console_results = []
+    for max_depth, result in results.items():
+        if result.get('draw'):
+            outcome = "Draw"
+        else:
+            outcome = f"Player {result['winner']}"
+        console_results.append([max_depth, outcome, result['total_moves']])
+
+    headers = ["Maximum Depth", "Winner", "Total Moves"]
+    md_table = tabulate(console_results, headers=headers, tablefmt="github")
+
+    # DISPLAY TABLE
+    print(md_table)
+
+    # SAVE OUTPUT AS A TABLE TO .md file
+    with open("output_files/ai_vs_ai_same_depth_results.md", 'w') as f:
+        f.write(md_table)
+
     return results
 
 
 if __name__ == "__main__":
-    max_depth_values = [1, 2, 3, 4]
+    max_depth_values = [1, 2]
     game_results = run_benchmark(max_depth_values)
-
-    # SAVE RESULTS TO JSON
-    with open('output_files/game_results.json', 'w') as f:
-        json.dump(game_results, f, indent=2)

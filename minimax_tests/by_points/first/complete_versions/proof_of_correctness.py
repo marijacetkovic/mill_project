@@ -240,7 +240,7 @@ for agent in env.agent_iter():
 
     # AI MOVE SELECTION
     if current_player == ai_player_1:
-        move = for_proof_of_correctness.find_optimal_move(
+        move = debug_for_proof_of_correctness.find_optimal_move(
             current_state=state,
             maximizing_player=current_player,
             moves_counter=number_of_precomputed_moves + ai_moves
@@ -248,7 +248,7 @@ for agent in env.agent_iter():
         print(f"AI Player {current_player} move: {move}")
         ai_moves += 1
     else:
-        move = for_proof_of_correctness.find_optimal_move(
+        move = debug_for_proof_of_correctness.find_optimal_move(
             current_state=state,
             maximizing_player=current_player,
             moves_counter=number_of_precomputed_moves + ai_moves
@@ -257,3 +257,4 @@ for agent in env.agent_iter():
         ai_moves += 1
 
     env.step(move)
+

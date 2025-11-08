@@ -2,6 +2,7 @@ from famnit_gym.envs import mill
 from minimax_implementations import alpha_beta_move_ordering
 from minimax_implementations import alpha_beta_move_ordering_hashing
 import time
+from tabulate import tabulate
 
 
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
@@ -210,10 +211,6 @@ def run_benchmark(iterations):
         [23, 24, 0],
         [1, 22, 0],
         [24, 23, 0],
-        [22, 1, 0],
-        [23, 24, 0],
-        [1, 22, 0],
-        [24, 23, 0],
     ]
 
     # INITIALIZE ENVIRONMENT AND STATE
@@ -272,11 +269,7 @@ def run_benchmark(iterations):
         # CALCULATE AVERAGE TIME
         avg_time = total_time / iterations
 
-        results.append({
-            'name': name,
-            'avg_time': avg_time,
-            'first_move': first_move
-        })
+        results.append([name, first_move, avg_time])
 
         print(f"Completed {iterations} iterations for Implementation {name}")
 
@@ -285,23 +278,24 @@ def run_benchmark(iterations):
     print("\nBENCHMARK RESULTS:")
     print("-" * 70)
 
-    for result in results:
-        print(f"{result['name']}:")
-        print(f"  First Move: {result['first_move']}")
-        print(f"  Average Time: {result['avg_time']:.6f}s\n")
+    # CREATE TABLE
+    console_results = [[name, first_move, f"{avg_time:.4f}s"] for name, first_move, avg_time in results]
+    headers = ["Algorithm", "Optimal Move", "Average Computation Time"]
+    md_table = tabulate(console_results, headers=headers, tablefmt="github")
+
+    # DISPLAY TABLE
+    print(md_table)
 
     # CALCULATE SPEEDUP
-    if len(results) == 2:
-        time1 = results[0]['avg_time']
-        time2 = results[1]['avg_time']
-        if time1 > 0 and time2 > 0:
-            speedup = time1 / time2
-            print(f"SPEEDUP: {speedup:.2f}x")
+    time1 = results[0][2]
+    time2 = results[1][2]
 
-            if speedup > 1:
-                print(f"Implementation WITH Hashing is {speedup:.2f}x faster")
-            else:
-                print(f"Implementation WITHOUT Hashing is {1 / speedup:.2f}x faster")
+    hashing_speedup = time1 / time2
+
+    if hashing_speedup > 1:
+        print(f"Implementation WITH Hashing is {hashing_speedup:.2f}x faster")
+    else:
+        print(f"Implementation WITHOUT Hashing is {1 / hashing_speedup:.2f}x faster")
 
     # SAVE TO MARKDOWN FILE
     filename = f"output_files/with_and_without_hashing_benchmark_results.md"
@@ -309,27 +303,23 @@ def run_benchmark(iterations):
     with open(filename, 'w') as f:
         f.write("BENCHMARK CONFIGURATION:\n")
         f.write("-" * 70 + "\n")
+        f.write(f"Iterations: {iterations}\n")
         f.write(f"Current Player: {current_player}\n")
         f.write(f"Precomputed Moves: {number_of_precomputed_moves}\n")
-        f.write(f"Iterations: {iterations}\n")
         f.write(f"Board State:\n{precomputed_state}\n")
         f.write("=" * 70 + "\n")
 
-        f.write("BENCHMARK RESULTS:\n")
-        f.write("-" * 70 + "\n")
+        f.write(md_table + "\n")
+        f.write("-" * 92 + "\n")
 
-        for result in results:
-            f.write(f"{result['name']}:")
-            f.write(f"  First Move: {result['first_move']}")
-            f.write(f"  Average Time: {result['avg_time']:.6f}s\n")
-
-        if speedup > 1:
-            f.write(f"Implementation WITH Hashing is {speedup:.2f}x faster")
+        if hashing_speedup > 1:
+            f.write(f"Implementation WITH Hashing is {hashing_speedup:.2f}x faster")
         else:
-            f.write(f"Implementation WITHOUT Hashing is {1 / speedup:.2f}x faster")
+            f.write(f"Implementation WITHOUT Hashing is {1 / hashing_speedup:.2f}x faster")
 
     return results
 
 
 # RUN BENCHMARK
-benchmark_results = run_benchmark(iterations=100)
+if __name__ == "__main__":
+    benchmark_results = run_benchmark(iterations=1)
