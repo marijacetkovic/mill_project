@@ -198,8 +198,6 @@ def find_optimal_move(current_state, maximizing_player, moves_counter):
             visited_states=None
         )
 
-        print(move, score)
-
         # UPDATE BEST MOVE IF A BETTER SCORE IS FOUND
         if score > best_score:
             best_score, optimal_move = score, move
