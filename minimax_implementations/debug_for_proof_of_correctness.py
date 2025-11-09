@@ -164,11 +164,11 @@ def minimax(current_state,
     if len(ordered_moves) == 0:
         return -terminal_reward if maximizing else terminal_reward
 
+    # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
+    final_score = -INF if maximizing else INF
+
     # EVALUATE ALL POSSIBLE MOVES
     for move in ordered_moves:
-        # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
-        final_score = -INF if maximizing else INF
-
         # SIMULATE THE MOVE ON A CLONED STATE
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
