@@ -43,14 +43,18 @@ def evaluate_state(current_state, maximizing_player):
         piece_advantage = (p2_pieces - p1_pieces) * 8
         position_evaluation = evaluate_positions(current_state, 2, 1)
 
-    # piece_advantage: maximal value is (9 - 2) * 9 = 63, minimal is  -63
-    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 9) = 8, minimal is -8
-    # THAT IS WHY 9 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
+    # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -63
+    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 2) = 29, minimal is -29
+    # THAT IS WHY 30 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
     # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
 
     # EVALUATE THE TOTAL ADVANTAGE
     evaluated_score = piece_advantage + position_evaluation
-    return evaluated_score
+
+    # NORMALIZE, SO THAT THE RANGE IS [-1, 1] (this is done so that the true terminating state is
+    # always preferred to the heuristically evaluated state)
+    normalized_score = evaluated_score / 210
+    return normalized_score
 
 
 # EVALUATES BOARD POSITIONS BY ASSIGNING VALUES TO STRATEGIC POSITIONS
@@ -96,9 +100,10 @@ def order_moves(current_state, current_player, maximizing_player, unordered_move
 # RECURSIVE MINIMAX ALGORITHM WITH ALPHA-BETA PRUNING + MOVE ORDERING
 def minimax(current_state,
             current_player, maximizing_player,
-            state_depth, moves_counter,
-            alpha=-INF, beta=INF,
-            visited_states=None):
+            state_depth, max_depth,
+            moves_counter,
+            alpha, beta,
+            visited_states):
 
     # INITIALIZE SET OF VISITED STATES IF EMPTY
     if visited_states is None:
@@ -126,18 +131,44 @@ def minimax(current_state,
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
 
-    # GET AND ORDER LEGAL MOVES FOR BETTER PRUNING EFFICIENCY
+    # IF THE STATE IS NOT TERMINATING AND MAXIMAL DEPTH IS REACHED -  RETURN 0
+    # (means that maximizing player can only find a draw at this depth in this branch)
+    if state_depth == max_depth:
+        return 0
+
+    # GET LEGAL MOVES
     legal_moves = current_state.legal_moves(current_player)
+
+    # DEFINE THE FORBIDDEN MOVES (third element doesn't matter for filtering)
+    unlegal_move_patterns = [
+        [1, 4], [4, 1], [4, 7], [7, 4],
+        [3, 6], [6, 3], [6, 9], [9, 6],
+        [22, 19], [19, 22], [19, 16], [16, 19],
+        [24, 21], [21, 24], [21, 18], [18, 21]
+    ]
+
+    # FILTER OUT MOVES THAT MATCH ANY OF THE FORBIDDEN PATTERNS
+    # TO AUGMENT THE MODEL OF THE GAME IN THE REFERRED PAPER
+    legal_augmented_moves = [
+        move for move in legal_moves
+        if move[0:2] not in unlegal_move_patterns
+    ]
+
+    # ORDER MOVES
     ordered_moves = order_moves(current_state=current_state,
                                 current_player=current_player,
                                 maximizing_player=maximizing_player,
-                                unordered_moves=legal_moves)
+                                unordered_moves=legal_augmented_moves)
 
-    # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
-    final_score = -INF if maximizing else INF
+    # NO LEGAL MOVES (since we are augmenting the model, we need this additional check)
+    if len(ordered_moves) == 0:
+        return -terminal_reward if maximizing else terminal_reward
 
     # EVALUATE ALL POSSIBLE MOVES
     for move in ordered_moves:
+        # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
+        final_score = -INF if maximizing else INF
+
         # SIMULATE THE MOVE ON A CLONED STATE
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
@@ -148,6 +179,7 @@ def minimax(current_state,
             current_player=3 - current_player,  # SWITCH PLAYER
             maximizing_player=maximizing_player,
             state_depth=state_depth + 1,
+            max_depth=max_depth,
             moves_counter=moves_counter,
             alpha=alpha,
             beta=beta,
@@ -158,13 +190,9 @@ def minimax(current_state,
         if maximizing:
             final_score = max(final_score, score)
             alpha = max(alpha, final_score)
-            if alpha != 0:
-                print("alpha is", alpha)
         else:
             final_score = min(final_score, score)
             beta = min(beta, final_score)
-            if beta != 0:
-                print("beta is", beta)
 
         # ALPHA-BETA PRUNING - STOP EVALUATING IF BRANCH IS WORSE THAN KNOWN ALTERNATIVE
         if alpha >= beta:
@@ -174,15 +202,32 @@ def minimax(current_state,
 
 
 # TOP-LEVEL MINIMAX FUNCTION THAT RETURNS THE OPTIMAL MOVE TO MAKE
-def find_optimal_move(current_state, maximizing_player, moves_counter):
+def find_optimal_move(current_state, maximizing_player, max_depth, moves_counter):
     best_score, optimal_move = -INF, None
 
     # GET AND ORDER LEGAL MOVES FOR THE CURRENT PLAYER
     legal_moves = current_state.legal_moves(player=maximizing_player)
+
+    # DEFINE THE FORBIDDEN MOVES (third element doesn't matter for filtering)
+    unlegal_move_patterns = [
+        [1, 4], [4, 1], [4, 7], [7, 4],
+        [3, 6], [6, 3], [6, 9], [9, 6],
+        [22, 19], [19, 22], [19, 16], [16, 19],
+        [24, 21], [21, 24], [21, 18], [18, 21]
+    ]
+
+    # FILTER OUT MOVES THAT MATCH ANY OF THE FORBIDDEN PATTERNS
+    # TO AUGMENT THE MODEL OF THE GAME IN THE REFERRED PAPER
+    legal_augmented_moves = [
+        move for move in legal_moves
+        if move[0:2] not in unlegal_move_patterns
+    ]
+
+    # ORDER MOVES
     ordered_moves = order_moves(current_state=current_state,
                                 current_player=maximizing_player,
                                 maximizing_player=maximizing_player,
-                                unordered_moves=legal_moves)
+                                unordered_moves=legal_augmented_moves)
 
     # EVALUATE EACH POSSIBLE MOVE
     for move in ordered_moves:
@@ -196,14 +241,17 @@ def find_optimal_move(current_state, maximizing_player, moves_counter):
             current_player=3 - maximizing_player,  # SWITCH TO OPPONENT
             maximizing_player=maximizing_player,
             state_depth=1,
+            max_depth=max_depth,
             moves_counter=moves_counter,
             alpha=best_score,  # USE CURRENT BEST AS ALPHA FOR PRUNING
             beta=INF,
             visited_states=None
         )
-        print("SCORE:", score)
+
         # UPDATE BEST MOVE IF A BETTER SCORE IS FOUND
         if score > best_score:
             best_score, optimal_move = score, move
 
-    return optimal_move
+    # ADDED LINE FOR THE PROOF OF CORRECTNESS (if 0 is printed, it means that the best
+    # maximizing player can guarantee is a draw)
+    return best_score

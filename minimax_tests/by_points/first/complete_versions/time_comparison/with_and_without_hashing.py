@@ -212,9 +212,6 @@ def run_benchmark(iterations):
         [1, 22, 0],
         [24, 23, 0],
         [22, 1, 0],
-        [23, 24, 0],
-        [1, 22, 0],
-        [24, 23, 0],
     ]
 
     # INITIALIZE ENVIRONMENT AND STATE

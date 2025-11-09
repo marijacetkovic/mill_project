@@ -18,7 +18,7 @@ def minimax(current_state,
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
 
-    # GET LEGAL MOVES FOR BETTER PRUNING EFFICIENCY
+    # GET LEGAL MOVES
     legal_moves = current_state.legal_moves(current_player)
 
     # INITIALIZE BEST SCORE BASED ON PLAYER TYPE

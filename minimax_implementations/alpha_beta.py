@@ -19,14 +19,14 @@ def minimax(current_state,
     if current_state.game_over():
         return -terminal_reward if maximizing else terminal_reward
 
-    # GET LEGAL MOVES FOR BETTER PRUNING EFFICIENCY
+    # GET LEGAL MOVES
     legal_moves = current_state.legal_moves(current_player)
-
-    # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
-    final_score = -INF if maximizing else INF
 
     # EVALUATE ALL POSSIBLE MOVES
     for move in legal_moves:
+        # INITIALIZE BEST SCORE BASED ON PLAYER TYPE
+        final_score = -INF if maximizing else INF
+
         # SIMULATE THE MOVE ON A CLONED STATE
         next_state = current_state.clone()
         next_state.make_move(current_player, move)
