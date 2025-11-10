@@ -1,6 +1,8 @@
+import time
 from minimax_tests.by_points.second.ai_player_with_difficulty import AiPlayerWithDifficulty
 from famnit_gym.envs import mill
 from tabulate import tabulate
+import itertools
 
 
 # BENCHMARK FOR HOW DIFFERENT AI DIFFICULTIES PERFORM AGAINST EACH OTHER
@@ -15,75 +17,74 @@ def run_benchmark(difficulties_list, num_games):
     }
 
     # TOURNAMENT LOOP
-    for diff1 in difficulties_list:
-        for diff2 in difficulties_list:
-            print(f"Running matchup: difficulty: {diff1} (Player 1) vs difficulty: {diff2} (Player 2)")
-            print("-" * 70)
+    for diff1, diff2 in itertools.combinations(difficulties_list, 2):
+        print(f"Running matchup: difficulty: {diff1} (Player 1) vs difficulty: {diff2} (Player 2)")
+        print("-" * 70)
 
-            key1 = f"difficulty_{diff1}_player_1_wins"
-            key2 = f"difficulty_{diff2}_player_2_wins"
-            matchup_key = f"{key1}_vs_{key2}"
+        key1 = f"difficulty_{diff1}_player_1_wins"
+        key2 = f"difficulty_{diff2}_player_2_wins"
+        matchup_key = f"{key1}_vs_{key2}"
 
-            results[matchup_key] = {
-                key1: 0,
-                key2: 0,
-                'draws': 0,
-            }
+        results[matchup_key] = {
+            key1: 0,
+            key2: 0,
+            'draws': 0,
+        }
 
-            # ITERATIONS LOOP
-            for game in range(1, num_games + 1):
-                print(f"  Game {game}/{num_games}")
+        # ITERATIONS LOOP
+        for game in range(1, num_games + 1):
+            print(f"  Game {game}/{num_games}")
 
-                env = mill.env()
-                env.reset()
+            env = mill.env()
+            env.reset()
 
-                ai1 = AiPlayerWithDifficulty(player_id=1, difficulty=diff1)
-                ai2 = AiPlayerWithDifficulty(player_id=2, difficulty=diff2)
+            ai1 = AiPlayerWithDifficulty(player_id=1, difficulty=diff1)
+            ai2 = AiPlayerWithDifficulty(player_id=2, difficulty=diff2)
 
-                total_moves_in_game = 0
+            total_moves_in_game = 0
 
-                # GAME LOOP
-                for agent in env.agent_iter():
-                    current_player = 1 if agent == "player_1" else 2
-                    observation, reward, termination, truncation, info = env.last()
+            # GAME LOOP
+            for agent in env.agent_iter():
+                current_player = 1 if agent == "player_1" else 2
+                observation, reward, termination, truncation, info = env.last()
 
-                    # SELECT AI TO MOVE AT THE MOMENT, AND THE OPPONENT
-                    ai = ai1 if current_player == 1 else ai2
-                    opponent_ai = ai1 if current_player == 2 else ai2
+                # SELECT AI TO MOVE AT THE MOMENT, AND THE OPPONENT
+                ai = ai1 if current_player == 1 else ai2
+                opponent_ai = ai1 if current_player == 2 else ai2
 
-                    # DRAW
-                    if truncation:
-                        results[matchup_key]["draws"] += 1
-                        group_results[diff1]["draws"] += 1
-                        group_results[diff2]["draws"] += 1
-                        break
+                # DRAW
+                if truncation:
+                    results[matchup_key]["draws"] += 1
+                    group_results[diff1]["draws"] += 1
+                    group_results[diff2]["draws"] += 1
+                    break
 
-                    state = mill.transition_model(env)
+                state = mill.transition_model(env)
 
-                    # GAME OVER
-                    if state.game_over():
-                        if state.get_phase(ai.player_id) == 'lost':
-                            results[matchup_key][
-                                f"difficulty_{opponent_ai.difficulty}_player_{opponent_ai.player_id}_wins"] += 1
-                            if ai.difficulty == opponent_ai.difficulty:
-                                group_results[opponent_ai.difficulty]['wins'] += 1
-                            else:
-                                group_results[opponent_ai.difficulty]['wins'] += 1
-                                group_results[ai.difficulty]['losses'] += 1
-                        break
+                # GAME OVER
+                if state.game_over():
+                    if state.get_phase(ai.player_id) == 'lost':
+                        results[matchup_key][
+                            f"difficulty_{opponent_ai.difficulty}_player_{opponent_ai.player_id}_wins"] += 1
+                        if ai.difficulty == opponent_ai.difficulty:
+                            group_results[opponent_ai.difficulty]['wins'] += 1
+                        else:
+                            group_results[opponent_ai.difficulty]['wins'] += 1
+                            group_results[ai.difficulty]['losses'] += 1
+                    break
 
-                    # CHOOSE MOVE AND MAKE A STEP
-                    move = ai.choose_move(state, total_moves_in_game)
-                    env.step(move)
-                    total_moves_in_game += 1
+                # CHOOSE MOVE AND MAKE A STEP
+                move = ai.choose_move(state, total_moves_in_game)
+                env.step(move)
+                total_moves_in_game += 1
 
-            # PRINT STATISTICS PER MATCHUP
-            print("-" * 70 + "\n")
-            print(f"Matchup results")
-            print(f"  {key1}: {results[matchup_key][key1]}")
-            print(f"  {key2}: {results[matchup_key][key2]}")
-            print(f"  Draws: {results[matchup_key]['draws']}")
-            print("-" * 70)
+        # PRINT STATISTICS PER MATCHUP
+        print("-" * 70 + "\n")
+        print(f"Matchup results")
+        print(f"  {key1}: {results[matchup_key][key1]}")
+        print(f"  {key2}: {results[matchup_key][key2]}")
+        print(f"  Draws: {results[matchup_key]['draws']}")
+        print("-" * 70)
 
     print("\n" + "=" * 70)
     print("TOURNAMENT SUMMARY")
@@ -157,7 +158,9 @@ def run_benchmark(difficulties_list, num_games):
 
 
 if __name__ == "__main__":
-    difficulties = ["easy", "medium"]
-
+    difficulties = ["easy", "medium", "hard", "unbeatable"]
+    s = time.time()
     game_results, performance_stats = run_benchmark(difficulties_list=difficulties,
-                                                    num_games=10)
+                                                    num_games=1)
+    e = time.time()
+    print(s - e)

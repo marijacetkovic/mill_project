@@ -39,7 +39,6 @@ class AiPlayerWithDifficulty:
 
         # RANDOM MOVE
         if random.random() < num_random_moves:
-            print("random move")
             return random.choice(legal_moves)
 
         # OPTIMAL MOVE

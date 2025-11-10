@@ -35,7 +35,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
             env.reset()
 
             ai_player = random.randint(1, 2)
-            random_player = 3 - ai_player
+            base_player = 3 - ai_player
             total_moves_in_game = 0
             ai_moves_this_game = 0
             ai_time_this_game = 0.0
@@ -56,7 +56,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
                 # GAME OVER
                 if state.game_over():
                     # AI WON
-                    if state.get_phase(random_player) == 'lost':
+                    if state.get_phase(base_player) == 'lost':
                         wins += 1
 
                     games_played += 1
@@ -78,14 +78,23 @@ def run_benchmark(max_depth_list, iterations_per_depth):
                     computation_time = end_time - start_time
                     total_ai_time += computation_time
                     ai_time_this_game += computation_time
-                    ai_move_times.append(computation_time)  # Store individual move time
+                    ai_move_times.append(computation_time)
 
                     total_ai_moves += 1
                     ai_moves_this_game += 1
                     total_moves_in_game += 1
                 else:
-                    # MOVE OF RANDOM PLAYER
-                    move = random.choice(state.legal_moves(player=random_player))
+                    # MOVE OF PLAYER WHO CAL LOOK ONE MOVE AHEAD AND
+                    # PERFORMS 10 PERCENTS OF RANDOM MOVES
+                    legal_moves = state.legal_moves(base_player)
+
+                    if random.random() <= 0.1:  # RANDOM MOVE
+                        move = random.choice(legal_moves)
+                    else:  # OPTIMAL MOVE
+                        move = limited_depth.find_optimal_move(current_state=state,
+                                                               maximizing_player=base_player,
+                                                               max_depth=1,
+                                                               moves_counter=total_moves_in_game)
                     total_moves_in_game += 1
 
                 env.step(move)
@@ -135,5 +144,8 @@ def run_benchmark(max_depth_list, iterations_per_depth):
 
 
 if __name__ == "__main__":
-    max_depth_values = [1, 2, 3]
+    start_time = time.perf_counter()
+    max_depth_values = [1, 2, 3, 4, 5]
     game_results = run_benchmark(max_depth_values, iterations_per_depth=100)
+    end_time = time.perf_counter()
+    print(end_time - start_time)

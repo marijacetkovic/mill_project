@@ -3,20 +3,17 @@ INF = 200  # GLOBAL INFINITY - CORRESPONDS TO THE MAXIMAL NUMBER OF MOVES ALLOWE
 
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE
 def evaluate_state(current_state, maximizing_player):
-    if maximizing_player == 1:
-        p1_pieces = current_state.count_pieces(1)
-        p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p1_pieces - p2_pieces) * 9
-        position_advantage = evaluate_positions(current_state, 1, 2)
-    else:
-        p1_pieces = current_state.count_pieces(1)
-        p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p2_pieces - p1_pieces) * 9
-        position_advantage = evaluate_positions(current_state, 2, 1)
+    opponent = 3 - maximizing_player
+    p1_pieces = current_state.count_pieces(maximizing_player)
+    p2_pieces = current_state.count_pieces(opponent)
+    piece_advantage = (p1_pieces - p2_pieces) * 30
+    position_evaluation = evaluate_positions(current_state,
+                                             maximizing_player,
+                                             opponent)
 
-    # piece_advantage: maximal value is (9 - 2) * 9 = 63, minimal is  -63
-    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 9) = 8, minimal is -8
-    # THAT IS WHY 9 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
+    # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -210
+    # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 2) = 29, minimal is -29
+    # THAT IS WHY 30 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
     # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
 
     # EVALUATE THE TOTAL ADVANTAGE

@@ -41,8 +41,7 @@ def run_proof_of_correctness():
     print("-" * 50)
 
     # AI MOVE SELECTION - SOMEWHAT IMPLEMENTATION OF ITERATIVE DEEPENING,
-    # TO DETERMINE WHICH DEPTH IS FEASIBLE
-    # for 12: 3268 s -> 54 min, 8: 57 s, 9:
+    # MAXIMAL FEASIBLE DEPTH REACHED ON ONE OF OUR SETUP WAS 12 -> 57 minutes
     for d in range(1, 200 - number_of_precomputed_moves + 1):
         start_time = time.time()
         move = debug_for_proof_of_correctness.find_optimal_move(

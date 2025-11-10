@@ -90,5 +90,5 @@ def run_benchmark(max_depth_list):
 
 
 if __name__ == "__main__":
-    max_depth_values = [1, 2, 3]
+    max_depth_values = [1, 2, 3, 4, 5, 7]
     game_results = run_benchmark(max_depth_values)

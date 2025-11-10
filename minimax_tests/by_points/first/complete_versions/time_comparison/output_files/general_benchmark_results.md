@@ -17,6 +17,7 @@ Board State:
 ======================================================================
 | Algorithm                                 | Optimal Move   | Computation Time   |
 |-------------------------------------------|----------------|--------------------|
-| Alpha-Beta                                | [23, 9, 1]     | 0.9973s            |
-| Alpha-Beta with Move Ordering             | [23, 9, 20]    | 1.2468s            |
-| Alpha-Beta with Move Ordering and Hashing | [23, 9, 20]    | 1.1619s            |
+| Basic Minimax                             | [23, 9, 1]     | 1019.9218s         |
+| Alpha-Beta                                | [23, 9, 1]     | 5.4367s            |
+| Alpha-Beta with Move Ordering             | [23, 9, 20]    | 1.5387s            |
+| Alpha-Beta with Move Ordering and Hashing | [23, 9, 20]    | 1.6504s            |

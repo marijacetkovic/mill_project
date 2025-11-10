@@ -32,18 +32,15 @@ def get_state_hash(current_state):
 
 # EVALUATES THE CURRENT BOARD STATE AND RETURNS A SCORE FOR THE MOVE
 def evaluate_state(current_state, maximizing_player):
-    if maximizing_player == 1:
-        p1_pieces = current_state.count_pieces(1)
-        p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p1_pieces - p2_pieces) * 8
-        position_evaluation = evaluate_positions(current_state, 1, 2)
-    else:
-        p1_pieces = current_state.count_pieces(1)
-        p2_pieces = current_state.count_pieces(2)
-        piece_advantage = (p2_pieces - p1_pieces) * 8
-        position_evaluation = evaluate_positions(current_state, 2, 1)
+    opponent = 3 - maximizing_player
+    p1_pieces = current_state.count_pieces(maximizing_player)
+    p2_pieces = current_state.count_pieces(opponent)
+    piece_advantage = (p1_pieces - p2_pieces) * 30
+    position_evaluation = evaluate_positions(current_state,
+                                             maximizing_player,
+                                             opponent)
 
-    # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -63
+    # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -210
     # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 2) = 29, minimal is -29
     # THAT IS WHY 30 IS CHOSEN AS THE MULTIPLICATION FACTOR FOR PIECE ADVANTAGE, SO THAT
     # EVEN IF THERE IS ONE PIECE ADVANTAGE IT IS HIGHER THAN ANY POSITION ADVANTAGE
@@ -53,7 +50,7 @@ def evaluate_state(current_state, maximizing_player):
 
     # NORMALIZE, SO THAT THE RANGE IS [-1, 1] (this is done so that the true terminating state is
     # always preferred to the heuristically evaluated state)
-    normalized_score = evaluated_score / 210
+    normalized_score = evaluated_score / 240
     return normalized_score
 
 

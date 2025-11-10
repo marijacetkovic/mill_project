@@ -212,6 +212,8 @@ def run_benchmark(iterations):
         [1, 22, 0],
         [24, 23, 0],
         [22, 1, 0],
+        [23, 24, 0],
+
     ]
 
     # INITIALIZE ENVIRONMENT AND STATE
@@ -323,4 +325,7 @@ def run_benchmark(iterations):
 
 # RUN BENCHMARK
 if __name__ == "__main__":
+    s = time.perf_counter()
     benchmark_results = run_benchmark(iterations=1)
+    e = time.perf_counter()
+    print(e - s)
