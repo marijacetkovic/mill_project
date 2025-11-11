@@ -7,9 +7,9 @@ def evaluate_state(current_state, maximizing_player):
     p1_pieces = current_state.count_pieces(maximizing_player)
     p2_pieces = current_state.count_pieces(opponent)
     piece_advantage = (p1_pieces - p2_pieces) * 30
-    position_evaluation = evaluate_positions(current_state,
-                                             maximizing_player,
-                                             opponent)
+    position_advantage = evaluate_positions(current_state,
+                                            maximizing_player,
+                                            opponent)
 
     # piece_advantage: maximal value is (9 - 2) * 30 = 210, minimal is  -210
     # position_advantage: maximal value is (4 * 8 + 3 * 1) - (3 * 2) = 29, minimal is -29
@@ -66,7 +66,6 @@ def minimax(current_state,
             current_player, maximizing_player,
             state_depth, moves_counter,
             alpha, beta):
-
     # DRAW CONDITION - MAXIMUM GAME LENGTH REACHED
     if state_depth == 200 - moves_counter:
         return 0

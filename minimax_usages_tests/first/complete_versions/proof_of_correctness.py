@@ -1,5 +1,5 @@
 from famnit_gym.envs import mill
-from minimax_implementations import debug_for_proof_of_correctness
+from minimax_implementations import for_proof_of_correctness
 import time
 
 
@@ -44,7 +44,7 @@ def run_proof_of_correctness():
     # MAXIMAL FEASIBLE DEPTH REACHED ON ONE OF OUR SETUP WAS 12 -> 57 minutes
     for d in range(1, 200 - number_of_precomputed_moves + 1):
         start_time = time.time()
-        move = debug_for_proof_of_correctness.find_optimal_move(
+        move = for_proof_of_correctness.find_optimal_move(
             current_state=state,
             maximizing_player=current_player,
             max_depth=d,

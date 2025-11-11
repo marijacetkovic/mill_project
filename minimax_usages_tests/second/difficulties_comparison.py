@@ -139,7 +139,7 @@ def run_benchmark(difficulties_list, num_games):
         performance_table_data = []
         for difficulty, stats in group_results.items():
             total_games_per_diff = stats['wins'] + stats['draws'] + stats['losses']
-            win_rate = (stats['wins'] / total_games_per_diff * 100) if total_games_per_diff > 0 else 0
+            win_rate = (stats['wins'] / total_games_per_diff * 100)
 
             performance_table_data.append([
                 difficulty.upper(),
@@ -151,14 +151,15 @@ def run_benchmark(difficulties_list, num_games):
 
         # Create performance table
         performance_headers = ["Difficulty", "Wins", "Win Rate", "Draws", "Losses"]
-        performance_table = tabulate(performance_table_data, headers=performance_headers, tablefmt="github")
+        performance_table = tabulate(performance_table_data, headers=performance_headers,
+                                     tablefmt="github")
         f.write(performance_table)
 
     return results, group_results
 
 
 if __name__ == "__main__":
-    difficulties = ["easy", "medium", "hard", "unbeatable"]
+    difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     s = time.time()
     game_results, performance_stats = run_benchmark(difficulties_list=difficulties,
                                                     num_games=1)

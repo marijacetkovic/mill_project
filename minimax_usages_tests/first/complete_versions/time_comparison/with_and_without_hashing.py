@@ -1,8 +1,9 @@
 from famnit_gym.envs import mill
 from minimax_implementations import alpha_beta_move_ordering
 from minimax_implementations import alpha_beta_move_ordering_hashing
-import time
 from tabulate import tabulate
+import time
+
 
 
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
@@ -325,7 +326,5 @@ def run_benchmark(iterations):
 
 # RUN BENCHMARK
 if __name__ == "__main__":
-    s = time.perf_counter()
-    benchmark_results = run_benchmark(iterations=1)
-    e = time.perf_counter()
-    print(e - s)
+    benchmark_results = run_benchmark(iterations=100)
+

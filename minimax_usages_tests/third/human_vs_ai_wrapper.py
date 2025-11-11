@@ -27,8 +27,10 @@ def human_vs_ai(human_player=1, ai_difficulty="medium"):
         if state.game_over():
             if current_player == human_player:
                 print("LOSE!")
+                break
             else:
                 print("WIN!")
+                break
 
         # USER'S TURN
         if current_player == human_player:
@@ -168,17 +170,17 @@ if __name__ == "__main__":
             print("Please enter a valid number (1 or 2)")
 
     # get difficulty choice
-    difficulties = ["easy", "medium", "hard", "unbeatable"]
+    difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     while True:
-        player_choice_difficulty = input("Choose AI difficulty (easy/medium/hard/unbeatable) [default: medium]: ").strip().lower()
+        player_choice_difficulty = input("Choose AI difficulty (apprentice, adventurer, knight, champion, legend) [default: knight]: ").strip().lower()
         if player_choice_difficulty == "":
-            chosen_difficulty = "medium"
+            chosen_difficulty = "knight"
             break
         if player_choice_difficulty in difficulties:
             chosen_difficulty = player_choice_difficulty
             break
         else:
-            print("Please choose from: easy, medium, hard")
+            print("Please choose from: apprentice, adventurer, knight, champion, legend")
 
     human_vs_ai(human_player=chosen_human_player,
                 ai_difficulty=chosen_difficulty)

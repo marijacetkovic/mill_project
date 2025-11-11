@@ -249,6 +249,6 @@ def find_optimal_move(current_state, maximizing_player, max_depth, moves_counter
         if score > best_score:
             best_score, optimal_move = score, move
 
-    # ADDED LINE FOR THE PROOF OF CORRECTNESS (if 0 is printed, it means that the best
+    # CHANGED LINE FOR THE PROOF OF CORRECTNESS (if 0 is output, it means that the best
     # maximizing player can guarantee is a draw)
     return best_score

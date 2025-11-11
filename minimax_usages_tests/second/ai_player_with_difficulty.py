@@ -10,17 +10,19 @@ class AiPlayerWithDifficulty:
 
         # THE CONTROL PARAMETERS ARE MAXIMUM DEPTH AND RATIO OF RANDOM MOVES
         self.MAX_DEPTH_SETTINGS = {
-            "easy": 2,
-            "medium": 3,
-            "hard": 5,
-            "unbeatable": 7
+            "apprentice": 1,
+            "adventurer": 2,
+            "knight": 3,
+            "champion": 5,
+            "legend": 6
         }
 
         self.NUM_RANDOM_MOVES_SETTINGS = {
-            "easy": 0.4,
-            "medium": 0.3,
-            "hard": 0.2,
-            "unbeatable": 0.0,
+            "apprentice": 1,
+            "adventurer": 0.4,
+            "knight": 0.3,
+            "champion": 0.1,
+            "legend": 0.0,
         }
 
     # GETTERS
@@ -39,6 +41,7 @@ class AiPlayerWithDifficulty:
 
         # RANDOM MOVE
         if random.random() < num_random_moves:
+            print("random move")
             return random.choice(legal_moves)
 
         # OPTIMAL MOVE

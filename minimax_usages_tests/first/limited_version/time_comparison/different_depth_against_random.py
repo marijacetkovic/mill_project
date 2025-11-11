@@ -144,8 +144,5 @@ def run_benchmark(max_depth_list, iterations_per_depth):
 
 
 if __name__ == "__main__":
-    start_time = time.perf_counter()
-    max_depth_values = [1, 2, 3, 4, 5]
+    max_depth_values = [1, 2, 3, 4, 5, 6]
     game_results = run_benchmark(max_depth_values, iterations_per_depth=100)
-    end_time = time.perf_counter()
-    print(end_time - start_time)
