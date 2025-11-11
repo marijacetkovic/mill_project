@@ -73,20 +73,22 @@ pip install -r requirements.txt
 Run following lines form the root folder (mill-project).
 
 ```bash
-#Test different complete implementations
+# Test all complete implementations ~ 20 minutes
 python -m minimax_usages_tests.first.complete_versions.time_comparison.general
+
+# Test complete implementations with and without hashing ~ 100 minutes
 python -m minimax_usages_tests.first.complete_versions.time_comparison.with_and_without_hashing
 
-#Run proof of correctness
+# Run proof of correctness ~ unfeasible time
 python -m minimax_usages_tests.first.complete_versions.proof_of_correctness
 
-#Limited Depth AI – Same Depth Comparison
+# Limited Depth AI – Same Depth Comparison ~ 100 minutes
 python -m minimax_usages_tests.first.limited_version.same_depth_comparison.ai_vs_ai_same_depth
 
-#Limited Depth AI – Different Depth Comparison
+# Limited Depth AI – Different Depth Comparison ~ 5 hours
 python -m minimax_usages_tests.first.limited_version.time_comparison.different_depth_against_base
 
-# AI Difficulty Comparison
+# AI Difficulty Comparison ~ 6 hours
 python -m minimax_usages_tests.second.difficulties_comparison
 
 # Human vs AI Game

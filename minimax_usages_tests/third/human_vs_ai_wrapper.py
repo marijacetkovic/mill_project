@@ -173,7 +173,7 @@ if __name__ == "__main__":
     # GET DIFFICULTY CHOICE
     difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     while True:
-        player_choice_difficulty = input("Choose AI difficulty (apprentice, adventurer, knight, champion, legend) [default: knight]: ").strip().lower()
+        player_choice_difficulty = input("Choose AI difficulty (apprentice, adventurer, knight, champion {slow}, legend {very slow}) [default: knight]: ").strip().lower()
         if player_choice_difficulty == "":
             chosen_difficulty = "knight"
             break

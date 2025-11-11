@@ -143,7 +143,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
     return results
 
 
-# RUN BENCHMARK (expected time to finish ~ ??? minutes)
+# RUN BENCHMARK (expected time to finish ~ 5 hours)
 if __name__ == "__main__":
     max_depth_values = [1, 2, 3, 4, 5, 6]
     game_results = run_benchmark(max_depth_values, iterations_per_depth=100)

@@ -161,4 +161,4 @@ def run_benchmark(difficulties_list, num_games):
 if __name__ == "__main__":
     difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     game_results, performance_stats = run_benchmark(difficulties_list=difficulties,
-                                                    num_games=1)
+                                                    num_games=10)
