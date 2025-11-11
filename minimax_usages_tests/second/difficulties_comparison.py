@@ -1,8 +1,8 @@
-import time
-from minimax_tests.by_points.second.ai_player_with_difficulty import AiPlayerWithDifficulty
+from minimax_usages_tests.second.ai_player_with_difficulty import AiPlayerWithDifficulty
 from famnit_gym.envs import mill
 from tabulate import tabulate
 import itertools
+import time
 
 
 # BENCHMARK FOR HOW DIFFERENT AI DIFFICULTIES PERFORM AGAINST EACH OTHER
@@ -158,6 +158,7 @@ def run_benchmark(difficulties_list, num_games):
     return results, group_results
 
 
+# RUN BENCHMARK (expected time to finish ~ ??? minutes)
 if __name__ == "__main__":
     difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     s = time.time()

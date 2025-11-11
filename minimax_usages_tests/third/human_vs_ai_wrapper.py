@@ -1,4 +1,4 @@
-from minimax_tests.by_points.second.ai_player_with_difficulty import AiPlayerWithDifficulty
+from minimax_usages_tests.second.ai_player_with_difficulty import AiPlayerWithDifficulty
 from famnit_gym.envs import mill
 from famnit_gym.wrappers.mill import UserInteraction
 
@@ -153,6 +153,7 @@ def human_vs_ai(human_player=1, ai_difficulty="medium"):
             num_moves_already_done += 1
 
 
+# RUN THE GAME
 if __name__ == "__main__":
     # GET HUMAN PLAYER CHOICE
     while True:
@@ -169,7 +170,7 @@ if __name__ == "__main__":
         except ValueError:
             print("Please enter a valid number (1 or 2)")
 
-    # get difficulty choice
+    # GET DIFFICULTY CHOICE
     difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     while True:
         player_choice_difficulty = input("Choose AI difficulty (apprentice, adventurer, knight, champion, legend) [default: knight]: ").strip().lower()

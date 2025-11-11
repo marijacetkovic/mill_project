@@ -295,6 +295,6 @@ def run_benchmark():
     return results
 
 
-# RUN BENCHMARK
+# RUN BENCHMARK (expected time to finish ~20 minutes)
 if __name__ == "__main__":
     run_benchmark()

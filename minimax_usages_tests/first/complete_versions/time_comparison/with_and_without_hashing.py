@@ -5,7 +5,6 @@ from tabulate import tabulate
 import time
 
 
-
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
 def setup_predefined_board(start_env, setup):
     start_env.reset()
@@ -324,7 +323,6 @@ def run_benchmark(iterations):
     return results
 
 
-# RUN BENCHMARK
+# RUN BENCHMARK (expected time to finish ~ 100 minutes)
 if __name__ == "__main__":
     benchmark_results = run_benchmark(iterations=100)
-

@@ -12,7 +12,7 @@ def setup_predefined_board(start_env, setup):
 
 
 # PROOF OF CORRECTNESS BASED ON THE PAPER IN WHICH THEY COMPUTATIONALLY PROVE THAT
-# THE GAME IS A MILL
+# THE GAME IS A DRAW
 def run_proof_of_correctness():
     # SETUP MOVES
     setup_moves = [
@@ -69,5 +69,6 @@ def run_proof_of_correctness():
             print(f"Time needed: {elapsed_time:.2f} seconds")
 
 
+# RUN BENCHMARK (expected time to finish ~ unfeasible)
 if __name__ == "__main__":
     run_proof_of_correctness()
