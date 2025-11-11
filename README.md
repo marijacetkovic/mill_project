@@ -70,6 +70,8 @@ pip install -r requirements.txt
 
 ### 4. Run scripts
 
+Run following lines form the root folder (mill-project).
+
 ```bash
 #Test different complete implementations
 python -m minimax_usages_tests.first.complete_versions.time_comparison.general
