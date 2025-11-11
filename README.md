@@ -44,3 +44,49 @@ Focuses on AI player configurations.
 Provides an interactive game interface.
 
 - **`human_vs_ai_wrapper.py`**: Allows a human player to compete against an AI of a selected difficulty.
+
+
+## Installation
+
+### 1. Clone the repository:
+```bash
+git clone https://github.com/marijacetkovic/mill_project.git
+cd mill_project
+```
+
+### 2. Create a virtual environment:
+```bash
+python -m venv venv
+# Mac/Linux
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
+```
+
+### 3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run scripts
+
+```bash
+#Test different complete implementations
+python -m minimax_usages_tests.first.complete_versions.time_comparison.general
+python -m minimax_usages_tests.first.complete_versions.time_comparison.with_and_without_hashing
+
+#Run proof of correctness
+python -m minimax_usages_tests.first.complete_versions.proof_of_correctness
+
+#Limited Depth AI – Same Depth Comparison
+python -m minimax_usages_tests.first.limited_version.same_depth_comparison.ai_vs_ai_same_depth
+
+#Limited Depth AI – Different Depth Comparison
+python -m minimax_usages_tests.first.limited_version.time_comparison.different_depth_against_base
+
+# AI Difficulty Comparison
+python -m minimax_usages_tests.second.difficulties_comparison
+
+# Human vs AI Game
+python -m minimax_usages_tests.third.human_vs_ai_wrapper
+```
