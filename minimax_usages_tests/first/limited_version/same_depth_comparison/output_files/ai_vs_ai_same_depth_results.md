@@ -6,4 +6,3 @@
 |               4 | Player 1 |            39 |
 |               5 | Player 1 |            33 |
 |               6 | Draw     |           200 |
-|               7 | Player 2 |            32 |
