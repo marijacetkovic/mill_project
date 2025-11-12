@@ -3,8 +3,13 @@ from minimax_implementations import basic
 from minimax_implementations import alpha_beta
 from minimax_implementations import alpha_beta_move_ordering
 from minimax_implementations import alpha_beta_move_ordering_hashing
-import time
 from tabulate import tabulate
+import time
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
@@ -279,10 +284,13 @@ def run_benchmark():
     # DISPLAY TABLE
     print(md_table)
 
-    # SAVE TO MARKDOWN FILE
-    filename = f"output_files/general_benchmark_results.md"
+    # CREATE OUTPUT DIRECTORY IF IT DOESN'T EXIST
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    with open(filename, 'w') as f:
+    # SAVE OUTPUT AS A TABLE TO .md file
+    output_path = os.path.join(OUTPUT_DIR, 'general_benchmark_results.md')
+
+    with open(output_path, 'w') as f:
         f.write("BENCHMARK CONFIGURATION:\n")
         f.write("-" * 70 + "\n")
         f.write(f"Current Player: {current_player}\n")

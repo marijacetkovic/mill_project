@@ -2,6 +2,11 @@ from minimax_usages_tests.second.ai_player_with_difficulty import AiPlayerWithDi
 from famnit_gym.envs import mill
 from tabulate import tabulate
 import itertools
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # BENCHMARK FOR HOW DIFFERENT AI DIFFICULTIES PERFORM AGAINST EACH OTHER
@@ -105,8 +110,12 @@ def run_benchmark(difficulties_list, num_games):
         print(f"  Draws: {stats['draws']} / {total_games_per_diff}")
         print(f"  Losses: {stats['losses']} / {total_games_per_diff}")
 
+    # CREATE OUTPUT DIRECTORY IF IT DOESN'T EXIST
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     # SAVE AS TABLES TO .md FILE
-    with open("output_files/difficulties_comparison_results.md", 'w') as f:
+    output_path = os.path.join(OUTPUT_DIR, 'difficulties_comparison_results.md')
+    with open(output_path, 'w') as f:
         f.write("MATCHUP RESULTS:\n")
 
         # Prepare matchup data for table

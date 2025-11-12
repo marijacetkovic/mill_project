@@ -1,6 +1,11 @@
 from famnit_gym.envs import mill
 from minimax_implementations import limited_depth
 from tabulate import tabulate
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # BENCHMARK FOR HOW LIMITED DEPTH AI PERFORMS WHEN PLAYING AGAINST THE SAME LIMITED DEPTH AI
@@ -82,8 +87,12 @@ def run_benchmark(max_depth_list):
     # DISPLAY TABLE
     print(md_table)
 
+    # CREATE OUTPUT DIRECTORY IF IT DOESN'T EXIST
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     # SAVE OUTPUT AS A TABLE TO .md file
-    with open("output_files/ai_vs_ai_same_depth_results.md", 'w') as f:
+    output_path = os.path.join(OUTPUT_DIR, 'ai_vs_ai_same_depth_results.md')
+    with open(output_path, 'w') as f:
         f.write(md_table)
 
     return results

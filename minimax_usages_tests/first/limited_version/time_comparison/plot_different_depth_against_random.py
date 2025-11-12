@@ -1,12 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # CREATE TWO mean+SD PLOTS (TIME AND NUMBER OF MOVES) WITH WIN RATE TAGS
 def plot_benchmark():
     # LOAD RESULTS FROM JSON
-    with open('output_files/different_depth_against_random_results.json', 'r') as f:
+    input_path = os.path.join(OUTPUT_DIR, 'different_depth_against_random_results.json')
+    with open(input_path, 'r') as f:
         game_results = json.load(f)
 
     # SAVE PATH
@@ -35,9 +41,9 @@ def plot_benchmark():
     ax1.set_xticks(x_pos)
     ax1.set_xticklabels([f'Depth {d}' for d in depths])
 
-    # ADD WIN RATE ABOVE (moved higher)
+    # ADD WIN RATE ABOVE THE MAIN LABELS
     for i, (x, y, win_rate) in enumerate(zip(x_pos, avg_times, win_rates)):
-        ax1.text(x, y + std_times[i] + max(std_times) * 0.4,
+        ax1.text(x, y + std_times[i] + max(std_times) * 0.3,
                  f'{win_rate:.1f}% Win', ha='center', va='bottom', fontweight='bold',
                  bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
@@ -51,32 +57,32 @@ def plot_benchmark():
     ax2.set_xticks(x_pos)
     ax2.set_xticklabels([f'Depth {d}' for d in depths])
 
-    # ADD WIN RATE ABOVE (moved higher)
+    # ADD WIN RATE ABOVE THE MAIN LABELS
     for i, (x, y, win_rate) in enumerate(zip(x_pos, avg_moves, win_rates)):
-        ax2.text(x, y + std_moves[i] + max(std_moves) * 0.4,
+        ax2.text(x, y + std_moves[i] + max(std_moves) * 0.3,
                  f'{win_rate:.1f}% Win', ha='center', va='bottom', fontweight='bold',
                  bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
     # ADD VALUE LABELS BELOW the data points
     for i, (v, std) in enumerate(zip(avg_times, std_times)):
-        ax1.text(i, v + std + max(std_times) * 0.2, f'{v:.3f}',
+        ax1.text(i, v + std + max(std_times) * 0.2, f'{v:.2f} ± {std:.2f}',
                  ha='center', va='top', fontsize=9, fontweight='bold',
                  bbox=dict(boxstyle="round,pad=0.2", facecolor='white', alpha=0.8))
 
     for i, (v, std) in enumerate(zip(avg_moves, std_moves)):
-        ax2.text(i, v + std + max(std_moves) * 0.2, f'{v:.3f}',
+        ax2.text(i, v + std + max(std_moves) * 0.2, f'{v:.2f} ± {std:.2f}',
                  ha='center', va='top', fontsize=9, fontweight='bold',
                  bbox=dict(boxstyle="round,pad=0.2", facecolor='white', alpha=0.8))
 
     # ADJUST x-LIMITS
-    ax1.set_xlim(-0.3, len(depths) - 0.65)
-    ax2.set_xlim(-0.3, len(depths) - 0.65)
+    ax1.set_xlim(-0.5, len(depths) - 0.45)
+    ax2.set_xlim(-0.5, len(depths) - 0.45)
 
     # ADJUST y-LIMITS
     lower_y_times = min([avg - std for (avg, std) in zip(avg_times, std_times)])
     lower_y_moves = min([avg - std for (avg, std) in zip(avg_moves, std_moves)])
-    ax1.set_ylim(lower_y_times - 0.125, max(avg_times) + max(std_times) + max(std_times) * 1.2)
-    ax2.set_ylim(lower_y_moves - 10, max(avg_moves) + max(std_moves) + max(std_moves) * 1.2)
+    ax1.set_ylim(lower_y_times - 7, max(avg_times) + max(std_times) + max(std_times) * 1.2)
+    ax2.set_ylim(lower_y_moves - 5, max(avg_moves) + max(std_moves) + max(std_moves) * 1.2)
 
     # ADD GRID
     ax1.grid(True, alpha=0.3, axis='y')
@@ -84,7 +90,7 @@ def plot_benchmark():
 
     plt.tight_layout()
 
-    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.savefig(save_path, dpi=600, bbox_inches='tight')
 
     plt.show()
 

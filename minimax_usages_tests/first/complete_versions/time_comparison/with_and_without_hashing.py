@@ -3,6 +3,11 @@ from minimax_implementations import alpha_beta_move_ordering
 from minimax_implementations import alpha_beta_move_ordering_hashing
 from tabulate import tabulate
 import time
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # PRECOMPUTE THE BOARD, ACCORDING TO THE SETUP MOVES
@@ -300,10 +305,13 @@ def run_benchmark(iterations):
     else:
         print(f"Implementation WITHOUT Hashing is {1 / hashing_speedup:.2f}x faster")
 
-    # SAVE TO MARKDOWN FILE
-    filename = f"output_files/with_and_without_hashing_benchmark_results.md"
+    # CREATE OUTPUT DIRECTORY IF IT DOESN'T EXIST
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    with open(filename, 'w') as f:
+    # SAVE OUTPUT AS A TABLE TO .md file
+    output_path = os.path.join(OUTPUT_DIR, 'with_and_without_hashing_benchmark_results.md')
+
+    with open(output_path, 'w') as f:
         f.write("BENCHMARK CONFIGURATION:\n")
         f.write("-" * 70 + "\n")
         f.write(f"Iterations: {iterations}\n")

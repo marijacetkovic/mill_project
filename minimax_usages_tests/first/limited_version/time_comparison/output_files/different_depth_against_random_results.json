@@ -1,0 +1,44 @@
+{
+  "1": {
+    "win_rate": 53.0,
+    "avg_ai_moves_per_game": 23.68,
+    "std_ai_moves_per_game": 9.47827,
+    "avg_time_per_ai_move": 0.000893,
+    "std_time_per_ai_move": 0.000917
+  },
+  "2": {
+    "win_rate": 86.0,
+    "avg_ai_moves_per_game": 33.25,
+    "std_ai_moves_per_game":  24.464004,
+    "avg_time_per_ai_move": 0.009432,
+    "std_time_per_ai_move": 0.013488
+  },
+  "3": {
+    "win_rate": 98.0,
+    "avg_ai_moves_per_game": 16.39,
+    "std_ai_moves_per_game": 9.27674,
+    "avg_time_per_ai_move": 0.0457,
+    "std_time_per_ai_move": 0.033799
+  },
+  "4": {
+    "win_rate": 100.0,
+    "avg_ai_moves_per_game": 18.58,
+    "std_ai_moves_per_game": 9.456405,
+    "avg_time_per_ai_move": 0.340959,
+    "std_time_per_ai_move": 0.626281
+  },
+  "5": {
+    "win_rate": 100.0,
+    "avg_ai_moves_per_game": 14.89,
+    "std_ai_moves_per_game": 2.167464,
+    "avg_time_per_ai_move": 1.624938,
+    "std_time_per_ai_move": 4.960703
+  },
+  "6": {
+    "win_rate": 100.0,
+    "avg_ai_moves_per_game": 13.81,
+    "std_ai_moves_per_game": 1.927148,
+    "avg_time_per_ai_move": 8.323319,
+    "std_time_per_ai_move": 45.447128
+  }
+}

@@ -4,6 +4,11 @@ import random
 import time
 import math
 import json
+import os
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 
 
 # BENCHMARK FOR PERFORMANCE OF MINIMAX WITH LIMITED DEPTH AGAINST RANDOM PLAYER
@@ -125,10 +130,10 @@ def run_benchmark(max_depth_list, iterations_per_depth):
 
         results[max_depth] = {
             'win_rate': win_rate,
-            'avg_ai_moves_per_game': avg_ai_moves_per_game,
-            'std_ai_moves_per_game': std_moves_per_game,
-            'avg_time_per_ai_move': avg_time_per_ai_move,
-            'std_time_per_ai_move': std_time_per_move
+            'avg_ai_moves_per_game': round(avg_ai_moves_per_game, 6),
+            'std_ai_moves_per_game': round(std_moves_per_game, 6),
+            'avg_time_per_ai_move': round(avg_time_per_ai_move, 6),
+            'std_time_per_ai_move': round(std_time_per_move, 6)
         }
 
         print(f"\nResults for max_depth = {max_depth}:")
@@ -136,8 +141,12 @@ def run_benchmark(max_depth_list, iterations_per_depth):
         print(f"  Average Moves per Game: {avg_ai_moves_per_game:.6f} ± {std_moves_per_game:.6f}")
         print(f"  Average Time per AI Move: {avg_time_per_ai_move:.6f}s ± {std_time_per_move:.6f}s")
 
+    # CREATE OUTPUT DIRECTORY IF IT DOESN'T EXIST
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     # SAVE RESULTS TO JSON
-    with open('output_files/different_depth_against_random_results.json', 'w') as f:
+    output_path = os.path.join(OUTPUT_DIR, 'different_depth_against_random_results.json')
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
     return results
