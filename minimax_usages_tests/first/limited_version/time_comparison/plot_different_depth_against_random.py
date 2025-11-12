@@ -89,6 +89,6 @@ def plot_benchmark():
     plt.show()
 
 
+# CREATE AND SAVE PLOT
 if __name__ == "__main__":
-    # CREATE AND SAVE PLOTS IN DIFFERENT FORMATS
     plot_benchmark()

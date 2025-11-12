@@ -1,0 +1,16 @@
+{
+  "1": {
+    "win_rate": 50.0,
+    "avg_ai_moves_per_game": 22.7,
+    "std_ai_moves_per_game": 7.142128534267639,
+    "avg_time_per_ai_move": 0.00174621586064246,
+    "std_time_per_ai_move": 0.0016287151426267147
+  },
+  "2": {
+    "win_rate": 90.0,
+    "avg_ai_moves_per_game": 37.1,
+    "std_ai_moves_per_game": 26.990553903171385,
+    "avg_time_per_ai_move": 0.019976177086207685,
+    "std_time_per_ai_move": 0.028652775569888305
+  }
+}

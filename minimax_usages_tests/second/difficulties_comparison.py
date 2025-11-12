@@ -157,7 +157,7 @@ def run_benchmark(difficulties_list, num_games):
     return results, group_results
 
 
-# RUN BENCHMARK (expected time to finish ~ 6 hours)
+# RUN BENCHMARK (expected time to finish ~ 8 hours)
 if __name__ == "__main__":
     difficulties = ["apprentice", "adventurer", "knight", "champion", "legend"]
     game_results, performance_stats = run_benchmark(difficulties_list=difficulties,
