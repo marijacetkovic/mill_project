@@ -11,12 +11,12 @@ OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'output_files')
 # CREATE TWO mean+SD PLOTS (TIME AND NUMBER OF MOVES) WITH WIN RATE TAGS
 def plot_benchmark():
     # LOAD RESULTS FROM JSON
-    input_path = os.path.join(OUTPUT_DIR, 'different_depth_against_random_results.json')
+    input_path = os.path.join(OUTPUT_DIR, 'different_depth_against_base_results.json')
     with open(input_path, 'r') as f:
         game_results = json.load(f)
 
     # SAVE PATH
-    save_path = 'output_files/different_depth_against_random_plot.png'
+    save_path = 'output_files/different_depth_against_base_plot.png'
 
     # TWO PLOTS ON THE SAME FIGURE
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))

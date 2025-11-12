@@ -145,7 +145,7 @@ def run_benchmark(max_depth_list, iterations_per_depth):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # SAVE RESULTS TO JSON
-    output_path = os.path.join(OUTPUT_DIR, 'different_depth_against_random_results.json')
+    output_path = os.path.join(OUTPUT_DIR, 'different_depth_against_base_results.json')
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
