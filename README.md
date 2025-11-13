@@ -57,11 +57,11 @@ cd mill_project
 ### 1.2 Or if you have zip file with python code:
 ```bash
 # Mac/Linux
-unzip python_code_2_IS_Seminar_1_cetkovic_tupkalenko_gashi.zip
+unzip 2_IS_Seminar1_cetkovic_tupkalenko_gashi.zip
 # Windows
-Expand-Archive -Path python_code_2_IS_Seminar_1_cetkovic_tupkalenko_gashi.zip -DestinationPath ./python_code_2_IS_Seminar_1_cetkovic_tupkalenko_gashi
+Expand-Archive -Path 2_IS_Seminar1_cetkovic_tupkalenko_gashi.zip -DestinationPath ./2_IS_Seminar1_cetkovic_tupkalenko_gashi
 
-cd python_code_2_IS_Seminar_1_cetkovic_tupkalenko_gashi/python_code_2_IS_Seminar_1_cetkovic_tupkalenko_gashi
+cd 2_IS_Seminar1_cetkovic_tupkalenko_gashi/2_IS_Seminar1_cetkovic_tupkalenko_gashi
 ```
 
 ### 2. Create a virtual environment:
